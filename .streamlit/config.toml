@@ -27,6 +27,9 @@ showWidgetBorder = true
 # Chart colors (green theme palette)
 chartCategoricalColors = ["#2E7D32", "#4CAF50", "#66BB6A", "#81C784", "#A5D6A7", "#C8E6C9"]
 
+# Show sidebar border
+showSidebarBorder = true
+
 # Color palette (green-themed)
 greenColor = "#4CAF50"
 greenBackgroundColor = "#E8F5E8"
@@ -53,8 +56,7 @@ baseRadius = "0.75rem"  # More rounded for modern look
 buttonRadius = "1rem"    # Fully rounded buttons
 showWidgetBorder = true
 
-# Show modern sidebar border
-showSidebarBorder = true
+# Sidebar border is handled by theme.showSidebarBorder (not theme.sidebar.showSidebarBorder)
 
 [server]
 # Server configuration for better performance
@@ -66,7 +68,6 @@ enableXsrfProtection = true
 [browser]
 # Browser configuration
 gatherUsageStats = false
-showErrorDetails = true
 
 [logger]
 # Logging configuration

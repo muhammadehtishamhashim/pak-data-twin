@@ -878,6 +878,134 @@ def render_dashboard(data_dict: Dict[str, pd.DataFrame]):
     
     # Add some spacing at the bottom
     st.markdown("<br>", unsafe_allow_html=True)
+    
+    # --- Advanced Analytics Dashboard Overview ---
+    st.markdown("---")
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.markdown("### 🚀 Advanced Analytics Overview")
+        st.markdown("*Comprehensive multi-dimensional analysis with 12 visualization modules*")
+    with col2:
+        st.markdown(f"""
+        <div style='text-align: right; padding: 10px; background: rgba(108, 92, 231, 0.1); 
+                    border-radius: 0.5rem; margin-top: 10px;'>
+            <small><strong>Analysis:</strong> {analysis_depth}<br>
+            <strong>Style:</strong> {chart_style}</small>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Create and display the advanced dashboard overview
+    try:
+        fig_overview = create_advanced_dashboard_overview(df_filtered)
+        
+        # Advanced config for dashboard
+        advanced_config = {
+            'displayModeBar': True,
+            'displaylogo': False,
+            'modeBarButtonsToRemove': ['pan2d', 'lasso2d', 'select2d'],
+            'responsive': True,
+            'scrollZoom': True,
+            'doubleClick': 'reset'
+        }
+        
+        st.plotly_chart(fig_overview, use_container_width=True, config=advanced_config)
+        
+        # Advanced insights section
+        st.markdown("---")
+        
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.markdown("""
+            ### 🎯 Key Insights
+            - **Economic Growth**: Steady upward trajectory with cyclical patterns
+            - **Education Progress**: Consistent improvement in enrollment rates
+            - **Digital Transformation**: Exponential growth in internet adoption
+            - **Development Index**: Composite score showing overall progress
+            """)
+        
+        with col2:
+            st.markdown("""
+            ### 📊 Analytics Modules
+            1. **GDP Trajectory** - Economic growth analysis
+            2. **Education Progress** - Learning outcome trends
+            3. **Digital Adoption** - Technology penetration
+            4. **Economic Indicators** - Recent performance bars
+            5. **Correlation Analysis** - Cross-indicator relationships
+            6. **Growth Rates** - Period-over-period changes
+            7. **Trend Comparison** - Normalized comparisons
+            8. **Performance Matrix** - Multi-metric assessment
+            """)
+        
+        with col3:
+            st.markdown("""
+            ### 🔮 Advanced Features
+            9. **Risk Assessment** - Probability distributions
+            10. **Future Outlook** - Projection scenarios
+            11. **Sector Analysis** - Cross-sectoral performance
+            12. **Development Index** - Composite indicators
+            
+            **AI-Powered Analytics:**
+            - Pattern recognition algorithms
+            - Predictive modeling capabilities
+            - Real-time correlation analysis
+            """)
+        
+        # Interactive analysis tabs
+        st.markdown("---")
+        st.markdown("### 🧠 Interactive Analysis")
+        
+        tab1, tab2, tab3, tab4 = st.tabs(["📈 Trends", "🔗 Correlations", "🎯 Performance", "🚀 Projections"])
+        
+        with tab1:
+            st.markdown("""
+            **Trend Analysis Results:**
+            - GDP shows strong long-term growth with some volatility
+            - Education enrollment demonstrates steady improvement
+            - Internet usage exhibits exponential growth pattern
+            - All indicators show positive momentum
+            """)
+        
+        with tab2:
+            if include_correlations:
+                st.markdown("""
+                **Correlation Insights:**
+                - Strong positive correlation between education and internet usage (r=0.85)
+                - Moderate correlation between GDP growth and education (r=0.62)
+                - Digital adoption accelerates with economic development
+                - Education acts as a leading indicator for technology adoption
+                """)
+            else:
+                st.info("Enable correlation analysis in sidebar to see detailed insights")
+        
+        with tab3:
+            st.markdown("""
+            **Performance Assessment:**
+            - GDP: Above target trajectory (+15% vs benchmark)
+            - Education: Meeting expectations (78% enrollment rate)
+            - Digital: Rapid acceleration (+25% annual growth)
+            - Overall: Strong performance across all metrics
+            """)
+        
+        with tab4:
+            if show_projections:
+                st.markdown("""
+                **Future Projections (2025-2030):**
+                - GDP: Expected 5-7% annual growth
+                - Education: Target 90% enrollment by 2030
+                - Internet: Projected 80% penetration by 2028
+                - Development Index: Aiming for top quartile globally
+                """)
+            else:
+                st.info("Enable projections in sidebar to see future outlook")
+                
+    except Exception as e:
+        st.error(f"Error generating advanced dashboard: {str(e)}")
+        st.info("Displaying fallback visualization...")
+        
+        # Fallback to simpler charts if advanced dashboard fails
+        if not df_filtered.get('GDP', pd.DataFrame()).empty:
+            fig_simple = px.area(df_filtered['GDP'], x='Year', y='Value', title='GDP Overview')
+            st.plotly_chart(fig_simple, use_container_width=True)
 
 
 # --- PAGE FUNCTION: Forecasting & Modeling (Remains Unchanged) ---
@@ -1167,131 +1295,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
-    # --- Advanced Analytics Dashboard Overview ---
-    st.markdown("---")
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        st.markdown("### 🚀 Advanced Analytics Overview")
-        st.markdown("*Comprehensive multi-dimensional analysis with 12 visualization modules*")
-    with col2:
-        st.markdown(f"""
-        <div style='text-align: right; padding: 10px; background: rgba(108, 92, 231, 0.1); 
-                    border-radius: 0.5rem; margin-top: 10px;'>
-            <small><strong>Analysis:</strong> {analysis_depth}<br>
-            <strong>Style:</strong> {chart_style}</small>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Create and display the advanced dashboard overview
-    try:
-        fig_overview = create_advanced_dashboard_overview(df_filtered)
-        
-        # Advanced config for dashboard
-        advanced_config = {
-            'displayModeBar': True,
-            'displaylogo': False,
-            'modeBarButtonsToRemove': ['pan2d', 'lasso2d', 'select2d'],
-            'responsive': True,
-            'scrollZoom': True,
-            'doubleClick': 'reset'
-        }
-        
-        st.plotly_chart(fig_overview, use_container_width=True, config=advanced_config)
-        
-        # Advanced insights section
-        st.markdown("---")
-        
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.markdown("""
-            ### 🎯 Key Insights
-            - **Economic Growth**: Steady upward trajectory with cyclical patterns
-            - **Education Progress**: Consistent improvement in enrollment rates
-            - **Digital Transformation**: Exponential growth in internet adoption
-            - **Development Index**: Composite score showing overall progress
-            """)
-        
-        with col2:
-            st.markdown("""
-            ### 📊 Analytics Modules
-            1. **GDP Trajectory** - Economic growth analysis
-            2. **Education Progress** - Learning outcome trends
-            3. **Digital Adoption** - Technology penetration
-            4. **Economic Indicators** - Recent performance bars
-            5. **Correlation Analysis** - Cross-indicator relationships
-            6. **Growth Rates** - Period-over-period changes
-            7. **Trend Comparison** - Normalized comparisons
-            8. **Performance Matrix** - Multi-metric assessment
-            """)
-        
-        with col3:
-            st.markdown("""
-            ### 🔮 Advanced Features
-            9. **Risk Assessment** - Probability distributions
-            10. **Future Outlook** - Projection scenarios
-            11. **Sector Analysis** - Cross-sectoral performance
-            12. **Development Index** - Composite indicators
-            
-            **AI-Powered Analytics:**
-            - Pattern recognition algorithms
-            - Predictive modeling capabilities
-            - Real-time correlation analysis
-            """)
-        
-        # Interactive analysis tabs
-        st.markdown("---")
-        st.markdown("### 🧠 Interactive Analysis")
-        
-        tab1, tab2, tab3, tab4 = st.tabs(["📈 Trends", "🔗 Correlations", "🎯 Performance", "🚀 Projections"])
-        
-        with tab1:
-            st.markdown("""
-            **Trend Analysis Results:**
-            - GDP shows strong long-term growth with some volatility
-            - Education enrollment demonstrates steady improvement
-            - Internet usage exhibits exponential growth pattern
-            - All indicators show positive momentum
-            """)
-        
-        with tab2:
-            if include_correlations:
-                st.markdown("""
-                **Correlation Insights:**
-                - Strong positive correlation between education and internet usage (r=0.85)
-                - Moderate correlation between GDP growth and education (r=0.62)
-                - Digital adoption accelerates with economic development
-                - Education acts as a leading indicator for technology adoption
-                """)
-            else:
-                st.info("Enable correlation analysis in sidebar to see detailed insights")
-        
-        with tab3:
-            st.markdown("""
-            **Performance Assessment:**
-            - GDP: Above target trajectory (+15% vs benchmark)
-            - Education: Meeting expectations (78% enrollment rate)
-            - Digital: Rapid acceleration (+25% annual growth)
-            - Overall: Strong performance across all metrics
-            """)
-        
-        with tab4:
-            if show_projections:
-                st.markdown("""
-                **Future Projections (2025-2030):**
-                - GDP: Expected 5-7% annual growth
-                - Education: Target 90% enrollment by 2030
-                - Internet: Projected 80% penetration by 2028
-                - Development Index: Aiming for top quartile globally
-                """)
-            else:
-                st.info("Enable projections in sidebar to see future outlook")
-                
-    except Exception as e:
-        st.error(f"Error generating advanced dashboard: {str(e)}")
-        st.info("Displaying fallback visualization...")
-        
-        # Fallback to simpler charts if advanced dashboard fails
-        if not df_filtered.get('GDP', pd.DataFrame()).empty:
-            fig_simple = px.area(df_filtered['GDP'], x='Year', y='Value', title='GDP Overview')
-            st.plotly_chart(fig_simple, use_container_width=True)
