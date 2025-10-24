@@ -7,12 +7,13 @@ from plotly.subplots import make_subplots
 from typing import Dict, List
 from src.config import CATEGORY_MAPPING, DASHBOARD_INDICATORS
 
-# Unified color palette for the whole dashboard
-COLOR_PRIMARY = '#6C5CE7'   # Purple (cards/accent)
-COLOR_ACCENT = '#00C48C'    # Teal/green (bars)
-COLOR_GDP = '#6C5CE7'       # Purple for GDP area/line
-COLOR_EDU = '#00C48C'       # Teal for Education
-COLOR_HEALTH = '#FF8A00'    # Orange for Internet/Health
+# Chart-specific color palette (independent from Streamlit theme)
+COLOR_PRIMARY = '#6C5CE7'   # Purple for primary elements
+COLOR_ACCENT = '#00C48C'    # Teal for accents
+COLOR_GDP = '#6C5CE7'       # Purple specifically for GDP (as requested)
+COLOR_EDU = '#2ca02c'       # Green for Education
+COLOR_HEALTH = '#ff7f0e'    # Orange for Internet/Health
+COLOR_TEXT = '#2c3e50'      # Dark color for chart text/axes
 
 def get_kpi_value(df: pd.DataFrame, category: str) -> (str, float):
     """Calculates the latest available value for a KPI and its growth delta."""
@@ -148,10 +149,19 @@ def create_plot_type(df_filtered: pd.DataFrame, category: str, chart_type: str):
         )
         fig.update_traces(mode='lines+markers', line=dict(width=3))
 
-    # --- Layout Update ---
+    # --- Layout Update with dark text for chart elements ---
     fig.update_layout(
         title_font_size=14,
+        title_font_color=COLOR_TEXT,
         xaxis_tickformat='d',
+        xaxis=dict(
+            title_font_color=COLOR_TEXT,
+            tickfont_color=COLOR_TEXT
+        ),
+        yaxis=dict(
+            title_font_color=COLOR_TEXT,
+            tickfont_color=COLOR_TEXT
+        ),
         margin=dict(t=30, l=0, r=0, b=20),
         height=350 
     )
@@ -186,20 +196,20 @@ def create_multi_axis_plot(data_dict: Dict[str, pd.DataFrame]) -> go.Figure:
     
     gdp_label = CATEGORY_MAPPING['GDP']['y_axis']
 
-    # 3. Add Traces (GDP on Primary Y-Axis)
+    # 3. Add Traces (GDP on Primary Y-Axis) - Using distinct blue for bars
     fig.add_trace(
         go.Bar(
             x=years, 
             y=gdp_data.reindex(years).fillna(0), # Fill missing GDP with 0 for bar chart
             name='GDP (USD)',
-            marker_color=COLOR_ACCENT,
+            marker_color='#1f77b4',  # Distinct blue for GDP bars
             opacity=0.7
         ),
         secondary_y=False,
     )
 
     # 4. Add Traces (Percentages on Secondary Y-Axis)
-    # Education
+    # Education - Green
     fig.add_trace(
         go.Scatter(
             x=years, 
@@ -207,11 +217,12 @@ def create_multi_axis_plot(data_dict: Dict[str, pd.DataFrame]) -> go.Figure:
             y=edu_data.reindex(years).fillna(float('nan')),
             name='School Enrollment (%)',
             mode='lines+markers',
-            line=dict(color=COLOR_EDU, width=3)
+            line=dict(color=COLOR_EDU, width=3),
+            marker=dict(size=6)
         ),
         secondary_y=True,
     )
-    # Digital Penetration
+    # Digital Penetration - Orange
     fig.add_trace(
         go.Scatter(
             x=years, 
@@ -219,28 +230,37 @@ def create_multi_axis_plot(data_dict: Dict[str, pd.DataFrame]) -> go.Figure:
             y=health_data.reindex(years).fillna(float('nan')),
             name='Internet Users (%)',
             mode='lines+markers',
-            line=dict(color=COLOR_HEALTH, width=3, dash='dot')
+            line=dict(color=COLOR_HEALTH, width=3, dash='dot'),
+            marker=dict(size=6)
         ),
         secondary_y=True,
     )
 
-    # 5. Update Layout and Axes
+    # 5. Update Layout and Axes with dark text
     fig.update_layout(
         title_text='<b>Trends: GDP vs Percentage Indicators</b>',
+        title_font_color=COLOR_TEXT,
         template='plotly_white',
         hovermode="x unified",
         margin=dict(t=50, b=20, l=40, r=40),
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
     )
 
-    fig.update_xaxes(title_text="Year", type='category')
+    fig.update_xaxes(
+        title_text="Year", 
+        type='category',
+        title_font_color=COLOR_TEXT,
+        tickfont_color=COLOR_TEXT
+    )
 
     # Primary Y-axis (Left) - GDP
     fig.update_yaxes(
         title_text=f"<b>GDP ({gdp_label})</b>", 
         secondary_y=False, 
         showgrid=False,
-        tickformat='~s' # Uses SI notation (k, M, G, T) for large numbers
+        tickformat='~s', # Uses SI notation (k, M, G, T) for large numbers
+        title_font_color=COLOR_TEXT,
+        tickfont_color=COLOR_TEXT
     )
 
     # Secondary Y-axis (Right) - Percentages
@@ -248,7 +268,9 @@ def create_multi_axis_plot(data_dict: Dict[str, pd.DataFrame]) -> go.Figure:
         title_text="<b>Percentage (%)</b>", 
         secondary_y=True,
         range=[0, 100], 
-        tickformat='.0f'
+        tickformat='.0f',
+        title_font_color=COLOR_TEXT,
+        tickfont_color=COLOR_TEXT
     )
     
     fig.update_layout(height=500)

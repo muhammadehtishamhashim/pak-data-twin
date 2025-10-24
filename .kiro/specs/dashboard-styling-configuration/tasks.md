@@ -1,123 +1,235 @@
-# Implementation Plan
+Theming overview
+In this guide, we provide an overview of theming and visual customization of Streamlit apps. Streamlit themes are defined using configuration options, which are most commonly defined in a .streamlit/config.toml file. For more information about setting configuration options, see Working with configuration options. For a complete list of configuration options and definitions, see the API reference for config.toml.
 
-- [x] 1. Set up styling infrastructure and configuration system
-  - Create the styling module directory structure with __init__.py files
-  - Implement the core StylingConfig class with theme management capabilities
-  - Create theme configuration files for professional, dark, and accessible themes
-  - Add configuration validation and error handling mechanisms
-  - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 6.1, 6.2, 6.5_
+The following options can be set in the [theme] table of config.toml and can't be set separately in the [theme.sidebar] table:
 
-- [ ] 2. Implement CSS injection and styling engine
-  - [ ] 2.1 Create the StylingEngine class with CSS injection capabilities
-    - Implement dynamic CSS generation from configuration objects
-    - Add CSS sanitization and validation for security
-    - Create methods for theme switching and CSS override support
-    - _Requirements: 1.1, 1.2, 2.1, 6.1_
+Base color scheme: Set your custom theme to inherit from Streamlit's light or dark theme.
+Base font: Set the base font weight and size. (This can be configured separately for heading and code font.)
+Chart color: Set series colors for Plotly, Altair, and Vega-Lite charts.
+Sidebar border: Set the visibility of the sidebar border.
+The following options can be configured separately for the main body of your app and the sidebar:
 
-  - [ ] 2.2 Design and implement base CSS styles for Streamlit components
-    - Create custom CSS for headers, sidebars, and main content areas
-    - Implement responsive grid system and spacing utilities
-    - Add professional typography and color scheme application
-    - _Requirements: 1.1, 1.4, 4.1, 4.4_
+Font family: Set the font family for body text, headings, and code.
+Font style: Set the weight and size of heading and code font, and set visibility of link underlines.
+Text color: Set the color of body text and links.
+Primary color: Set the color of interactive elements and highlights.
+Background color: Set the color of app, widget, code block, and dataframe header backgrounds.
+Border radius: Set the roundness of elements and widgets.
+Border color: Set the color and visibility of element, widget, sidebar, and dataframe borders.
+Basic color palette: Set the color palette (red, orange, yellow, green, blue, violet, and gray/grey) for things like colored Markdown text and sparklines.
+Example themes
+The following light theme is inspired by Anthropic.
 
-  - [ ] 2.3 Create theme-specific CSS templates and variations
-    - Implement professional theme with corporate color palette
-    - Create accessible theme with high contrast and color-blind friendly colors
-    - Add dark theme variant for different presentation contexts
-    - _Requirements: 1.1, 1.2, 2.3, 3.4_
 
-- [ ] 3. Enhance chart rendering with consistent styling
-  - [ ] 3.1 Create StyledChartRenderer class with theme integration
-    - Implement theme-aware chart generation methods
-    - Add consistent color palette application across all chart types
-    - Create chart template system for different visualization needs
-    - _Requirements: 1.2, 3.1, 3.3_
+Built with Streamlit 🎈
+Fullscreen
+open_in_new
+The following dark theme is inspired by Spotify.
 
-  - [ ] 3.2 Implement enhanced chart interactivity and animations
-    - Add smooth hover effects and transition animations
-    - Implement detailed tooltip configurations with styled content
-    - Create interactive legend and axis label enhancements
-    - _Requirements: 3.2, 3.5_
 
-  - [ ] 3.3 Optimize charts for accessibility and performance
-    - Implement color-blind friendly chart color schemes
-    - Add proper ARIA labels and accessibility features to charts
-    - Optimize chart rendering performance with efficient update mechanisms
-    - _Requirements: 3.4, 4.5_
+Built with Streamlit 🎈
+Fullscreen
+open_in_new
+Working with theme configuration during development
+Most theme configuration options can be updated while an app is running. This makes it easy to iterate on your custom theme. If you change your app's primary color, save your config.toml file, and rerun your app, you will immediately see the new color. However, some configuration options (like [[theme.fontFace]]) require you to restart the Streamlit server to reflect the updates. If in doubt, when updating your app's configuration, stop the Streamlit server in your terminal and restart your app with the streamlit run command.
 
-- [ ] 4. Implement responsive layout management system
-  - [ ] 4.1 Create LayoutManager class with responsive capabilities
-    - Implement dynamic column sizing based on screen breakpoints
-    - Create responsive spacing and margin calculation methods
-    - Add component positioning utilities for optimal layout
-    - _Requirements: 4.1, 4.2, 4.4_
+Customize colors and borders in your Streamlit app
+Color values
+For all configuration options that accept a color, you can specify the value with one of the following strings:
 
-  - [ ] 4.2 Implement responsive design for dashboard components
-    - Update main dashboard layout to use responsive grid system
-    - Optimize KPI cards and chart containers for different screen sizes
-    - Ensure proper mobile and tablet layout adaptations
-    - _Requirements: 4.1, 4.2, 4.5_
+A CSS <named-color> like "darkBlue" or "maroon".
+A HEX string like "#483d8b" or "#6A5ACD".
+An RGB string like "rgb(106, 90, 205)" or "RGB(70, 130, 180)".
+An HSL string like "hsl(248, 53%, 58%)" or "HSL(147, 50%, 47%)".
+star
+Tip
+Although you can specify an alpha value for your colors, this isn't necessary for most options. Streamlit adjusts the alpha value of colors to ensure contextually appropriate shading between background and foreground.
 
-- [ ] 5. Enhance user interface components and navigation
-  - [ ] 5.1 Implement styled navigation and header components
-    - Create professional header with branding and navigation elements
-    - Implement styled sidebar with improved filter controls
-    - Add breadcrumb navigation and page indicators
-    - _Requirements: 1.4, 5.1, 5.2_
+Default Streamlit colors
+Streamlit comes with two preconfigured themes: light and dark. If you don't specify any theme configuration options, Streamlit will attempt to use the preconfigured theme that best matches each user's browser settings. These themes feature a red primary color in addition to a basic color palette (red, orange, yellow, green, blue, violet, and gray/grey) for elements like colored Markdown text.
 
-  - [ ] 5.2 Add loading states and user feedback components
-    - Implement loading spinners and progress indicators
-    - Create styled error messages and success notifications
-    - Add tooltip system for user guidance and help
-    - _Requirements: 5.3, 5.4_
+Color and border configuration options
+Most theme configuration options can be set for your whole app, but you can override some with a different value for the sidebar. For example, your app's primary color (primaryColor) is used to highlight interactive elements and show focus. If you set theme.primaryColor, this will change the primary color for your whole app. However, if you set theme.sidebar.primaryColor, this will override theme.primaryColor in the sidebar, allowing you to use two different primary colors.
 
-  - [ ] 5.3 Implement accessibility enhancements for UI components
-    - Add keyboard navigation support for all interactive elements
-    - Implement proper focus indicators and tab order
-    - Create screen reader compatible component labels and descriptions
-    - _Requirements: 5.5_
+The following two configuration options can only be applied to the whole app:
 
-- [ ] 6. Integrate styling system with existing dashboard application
-  - [ ] 6.1 Update main.py to use the new styling system
-    - Integrate StylingEngine initialization and theme application
-    - Update page rendering functions to use styled components
-    - Implement theme switching functionality in the sidebar
-    - _Requirements: 1.1, 1.3, 2.1_
+theme.base sets the default colors for your app's theme to match one of Streamlit's two default themes ("light" or "dark"). If any theme configuation option is used and theme.base is not set, then Streamlit will use "light".
+theme.showSidebarBorder sets the visibility of the border between the sidebar and the main body of your app.
+theme.chartCategoricalColors and theme.chartSequentialColors set the series colors for Plotly, Altair, and Vega-Lite charts.
+The following configuration options can be set separately for the sidebar by using the [theme.sidebar] table instead of the [theme] table in config.toml:
 
-  - [ ] 6.2 Refactor existing chart creation to use StyledChartRenderer
-    - Replace existing chart creation calls with styled versions
-    - Update chart configuration to use centralized styling
-    - Ensure backward compatibility with existing chart functionality
-    - _Requirements: 1.2, 3.1, 3.3_
+theme.primaryColor
+theme.backgroundColor
+theme.secondaryBackgroundColor
+theme.textColor
+theme.linkColor
+theme.linkUnderline
+theme.codeBackgroundColor
+theme.baseRadius
+theme.buttonRadius
+theme.borderColor
+theme.dataframeBorderColor
+theme.dataframeHeaderBackgroundColor
+theme.showWidgetBorder
+All color palette options
+For brevity, on the rest of this page, theming configuration options will not include the theme. or theme.sidebar. prefix.
 
-  - [ ] 6.3 Update configuration files to include styling settings
-    - Extend src/config.py with styling configuration imports
-    - Add default theme selection and styling parameter definitions
-    - Create environment-based configuration switching capabilities
-    - _Requirements: 2.1, 2.2, 6.2_
+Basic color palette
+Various elements in Streamlit use or let you choose from a predefined palette of colors: red, orange, yellow, green, blue, violet, and gray/grey. These are some of the elements that use this basic color palette:
 
-- [ ] 7. Add documentation and configuration examples
-  - [ ] 7.1 Create styling configuration documentation
-    - Document theme configuration structure and options
-    - Provide examples for creating custom themes and color palettes
-    - Create troubleshooting guide for common styling issues
-    - _Requirements: 6.2, 6.4_
+Markdown text and background color (including st.badge).
+st.metric sparklines and deltas.
+Dataframe chart columns.
+Chat message avatars.
+Alert elements like st.success and st.warning.
+For each color in the palette, you can define a base color, background color, and text color. If you only define a base color, Streamlit adjusts lightness/darkness and opacity to automatically provide a corresponding background and text color. However, you can manually define each of them, too. These are the color palette options:
 
-  - [ ] 7.2 Update README with styling and configuration information
-    - Add section explaining the styling system and customization options
-    - Include screenshots showing different theme variations
-    - Provide setup instructions for development and deployment
-    - _Requirements: 6.2_
+redColor, redBackgroundColor, redTextColor
+orangeColor, orangeBackgroundColor, orangeTextColor
+yellowColor, yellowBackgroundColor, yellowTextColor
+greenColor, greenBackgroundColor, greenTextColor
+blueColor, blueBackgroundColor, blueTextColor
+violetColor, violetBackgroundColor, violetTextColor
+grayColor, grayBackgroundColor, grayTextColor
+primaryColor
+primaryColor defines the accent color most often used throughout your Streamlit app. The following features and effects use your primary color:
 
-- [ ] 8. Testing and validation
-  - [ ] 8.1 Create unit tests for styling components
-    - Write tests for StylingConfig validation and theme loading
-    - Test CSS generation and injection functionality
-    - Validate chart styling and theme application
-    - _Requirements: 2.5, 6.5_
+Button hover effects
+Elements in focus
+Selected elements
+star
+Tip
+When your primary color is used as a background, Streamlit changes the text color to white. For example, this happens for type="primary" buttons and for selected items in st.multiselect.
 
-  - [ ] 8.2 Implement integration tests for complete styling pipeline
-    - Test end-to-end styling from configuration to display
-    - Validate theme switching and responsive behavior
-    - Test cross-browser compatibility and performance
-    - _Requirements: 4.5, 6.5_
+For legibility, always choose a primary color that is dark enough to contrast well with white text.
+
+Example 1: Primary color
+The following configuration example has a "forestGreen" primary color. In the sidebar, the configuration overrides the primary color to "darkGoldenrod". If you click inside a widget to give it focus, Streamlit displays a primary-color border around the widget. Additionally, if you hover over the secondary and tertiary buttons, the hover color matches the primary color.
+
+[theme]
+base="dark"
+primaryColor="forestGreen"
+
+[theme.sidebar]
+primaryColor="darkGoldrod"
+
+Built with Streamlit 🎈
+Fullscreen
+open_in_new
+backgroundColor, secondaryBackgroundColor, codeBackgroundColor, and dataframeHeaderBackgroundColor
+backgroundColor defines the background color of your app.
+secondaryBackgroundColor is used for contrast in the following places:
+The background of input or selection regions for widgets
+Headers within elements like st.help and st.dataframe (if dataframeHeaderBackgroundColor isn't set)
+Code blocks and inline code (if codeBackgroundColor isn't set)
+codeBackgroundColor sets the background for code blocks and line code. If codeBackgroundColor is not set, Streamlit uses secondaryBackgroundColor instead.
+dataframeHeaderBackgroundColor sets the background for dataframe headers (including the cells used for row selection and addition, if present).
+push_pin
+Note
+If you do not define background colors for the sidebar, Streamlit will swap backgroundColor and secondaryBackgroundColor in the sidebar:
+
+If theme.sidebar.backgroundColor is not defined, Streamlit uses theme.secondaryBackgroundColor.
+If theme.sidebar.secondaryBackgroundColor is not defined, Streamlit uses theme.backgroundColor.
+Example 2: Background colors
+The following configuration example has a "white" background, with a lavender-tinted "ghostWhite" sidebar background. The secondary color for the whole app is "lavender" and the code background color is "powderBlue". The code background color is configured once in [theme] and inherited in the sidebar. However, because Streamlit swaps background colors when the sidebar inherits them, the secondary background color is set in both [theme] and [theme.sidebar]. To see the secondary color used for a hover effect, hover over a dataframe cell or open the multiselect drop-down menu.
+
+[theme]
+base="light"
+backgroundColor="white"
+secondaryBackgroundColor="lavender"
+codeBackgroundColor="powderBlue"
+
+[theme.sidebar]
+backgroundColor="ghostWhite"
+secondaryBackgroundColor="lavender"
+
+Built with Streamlit 🎈
+Fullscreen
+open_in_new
+textColor, linkColor, and linkUnderline
+You can configure the color of body text and links.
+
+textColor sets the default text color for all text in the app except language-highlighting in code blocks, inline code, and links. linkColor sets the default font color for all Markdown links in the app. If linkUnderline is set to true (default), the link underline color matches linkColor.
+
+The following elements are impacted by textColor:
+
+Markdown text, except links
+Text in code blocks that's not colored otherwise from language highlighting
+App-chrome and sidebar menu icons
+Widget labels, icons, option text, and placeholder text
+Dataframe and table text
+Non-Markdown links, like st.page_link, st.link_button, and the navigation menu
+As noted previously, Streamlit changes the text color to white when text is displayed against your primary color.
+
+Example 3: Text colors
+The following configuration example has "darkGoldenrod" text and "darkOrchid" links on a "dark" base. Buttons (including st.link_button) use the "darkGoldenrod" text color. In the multiselect widget, the placeholder text, drop-down menu, and tooltip all have "darkGoldenrod" text. If you hover over the sidebar, the scrollbar and collapse icon (chevron_left) are "darkGoldenrod".
+
+[theme]
+base="dark"
+textColor="darkGoldenrod"
+linkColor="darkOrchid"
+
+Built with Streamlit 🎈
+Fullscreen
+open_in_new
+baseRadius and buttonRadius
+baseRadius defines the radius of borders and backgrounds for the following elements:
+
+Buttons and input areas on widgets
+Selected items, including items in st.multiselect and the navigation menu
+Code blocks and inline code
+Dataframes (exterior)
+Badges and Markdown-text backgrounds
+Containers with borders, including expanders, forms, dialogs, popovers, and toasts
+Tooltips, including tooltips within charts
+Status and exception message blocks
+Images, including st.graphviz and st.pyplot, which display as static images
+buttonRadius overrides baseRadius for buttons and st.segmented_control.
+
+A few elements are notably not fully affected by baseRadius. Interactive charts and videos, which have a more complex underlying HTML, will always have square corners. This includes st.video, st.map, and st.pydeck_chart. Conversely, st.chat_input and st.audio_input will always be fully rounded. Sub-elements like tooltips are still affected by baseRadius.
+
+Example 4: Border radius
+In the following configuration example, the main body of the app uses a "full" (1rem) base radius, and the sidebar uses "none" (0rem). To better highlight this difference, the example includes contrasting primary and background colors.
+
+[theme]
+base="light"
+primaryColor="slateBlue"
+backgroundColor="mintCream"
+secondaryBackgroundColor="darkSeaGreen"
+baseRadius="full"
+
+[theme.sidebar]
+backgroundColor="aliceBlue"
+secondaryBackgroundColor="skyBlue"
+baseRadius="none"
+
+Built with Streamlit 🎈
+Fullscreen
+open_in_new
+borderColor, dataframeBorderColor, and showWidgetBorder
+Streamlit does not display borders for unfocused widgets by default (except for buttons). When a user focuses on a widget, Streamlit displays a border around the input area in your primaryColor. When the user removes focus, Streamlit hides the border.
+
+If you set showWidgetBorder=true, Streamlit will display widget borders when the widget is not in focus. For those widgets, the border color is set by borderColor. If borderColor is not set, Streamlit infers a color by adding transparency to your textColor.
+
+The following elements have borders that you can modify:
+
+Containers with borders, including expanders, forms, dialogs, popovers, and toasts
+The sidebar, including the right edge and the boundary below the navigation menu
+Dataframes and tables
+st.tabs (bottom border)
+Buttons, including st.button, st.pills, and st.segmented_control
+Borders on input regions
+dataframeBorderColor overrides borderColor for dataframes and tables.
+
+Example 5: Border color and visibility
+The following configuration example uses a "mediumSlateBlue" border color throughout the app. In the sidebar, widget borders are shown. In the main body of the app, widget borders are not shown, and there is no border around the multiselect, text, or chat input regions except when they are in focus. However, many other elements, like buttons and dataframes, have always-visible borders.
+
+[theme]
+base="dark"
+borderColor="mediumSlateBlue"
+showWidgetBorder=false
+
+[theme.sidebar]
+showWidgetBorder=true
+
+Built with Streamlit 🎈

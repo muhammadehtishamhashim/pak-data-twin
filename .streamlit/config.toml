@@ -1,0 +1,73 @@
+# Streamlit Configuration for Pakistan Data Twin Dashboard
+# Light theme with green color scheme
+
+[theme]
+# Base theme
+base = "light"
+
+# Primary color for interactive elements and highlights
+primaryColor = "#2E7D32"  # Dark green for buttons and focus
+
+# Background colors
+backgroundColor = "#FFFFFF"  # White primary background
+secondaryBackgroundColor = "#E8F5E8"  # Light green secondary background
+codeBackgroundColor = "#F1F8E9"  # Very light green for code blocks
+
+# Text colors
+textColor = "#1B5E20"  # Dark dark green text color
+linkColor = "#2E7D32"  # Dark green for links
+linkUnderline = true
+
+# Border and radius settings
+baseRadius = "0.5rem"  # Slightly rounded corners
+buttonRadius = "0.75rem"  # More rounded buttons
+borderColor = "#C8E6C9"  # Light green borders
+showWidgetBorder = true
+
+# Chart colors (green theme palette)
+chartCategoricalColors = ["#2E7D32", "#4CAF50", "#66BB6A", "#81C784", "#A5D6A7", "#C8E6C9"]
+
+# Color palette (green-themed)
+greenColor = "#4CAF50"
+greenBackgroundColor = "#E8F5E8"
+greenTextColor = "#1B5E20"
+
+blueColor = "#2196F3"
+blueBackgroundColor = "#E3F2FD"
+blueTextColor = "#0D47A1"
+
+# Modern Sidebar customization
+[theme.sidebar]
+# Modern sidebar colors
+backgroundColor = "#FAFAFA"  # Clean light gray background
+secondaryBackgroundColor = "#F5F5F5"  # Slightly darker for widgets
+primaryColor = "#2E7D32"  # Green for interactions
+
+# Dark text for better readability
+textColor = "#2c3e50"  # Dark text instead of green
+linkColor = "#2E7D32"  # Green links
+
+# Modern borders and styling
+borderColor = "#E0E0E0"  # Light gray borders
+baseRadius = "0.75rem"  # More rounded for modern look
+buttonRadius = "1rem"    # Fully rounded buttons
+showWidgetBorder = true
+
+# Show modern sidebar border
+showSidebarBorder = true
+
+[server]
+# Server configuration for better performance
+headless = false
+port = 8501
+enableCORS = true
+enableXsrfProtection = true
+
+[browser]
+# Browser configuration
+gatherUsageStats = false
+showErrorDetails = true
+
+[logger]
+# Logging configuration
+level = "info"
