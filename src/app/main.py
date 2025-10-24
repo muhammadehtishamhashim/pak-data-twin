@@ -5,6 +5,7 @@ import os
 import streamlit as st
 import pandas as pd
 import plotly.express as px 
+import plotly.graph_objects as go
 from typing import Dict
 
 # --- CRITICAL FIX FOR ModuleNotFoundError ---
@@ -21,9 +22,12 @@ from src.charts import create_plot_type, get_kpi_value, create_multi_axis_plot
 
 # Define a standard Plotly configuration for Streamlit (to address deprecation warning)
 PLOTLY_CONFIG = {
-    'displayModeBar': False,  # Hides the default Plotly menu
-    'responsive': True,
-    'scrollZoom': False  # Disable scroll-wheel zoom to prevent accidental zooming
+    'displayModeBar': True,  # Show modebar for better interactivity
+    'displaylogo': False,    # Hide Plotly logo
+    'modeBarButtonsToRemove': ['pan2d', 'lasso2d', 'select2d'],  # Remove unnecessary buttons
+    'responsive': True,      # Make charts responsive
+    'scrollZoom': False,     # Disable scroll-wheel zoom to prevent accidental zooming
+    'doubleClick': 'reset'   # Double-click to reset zoom
 }
 
 
@@ -70,41 +74,196 @@ def render_dashboard(data_dict: Dict[str, pd.DataFrame]):
 
     st.markdown("---")
 
-# --- 3) Main center: GDP ---
-    left_spacer, center, right_spacer = st.columns([1, 2, 1])
-    with center:
-        df_gdp = df_filtered.get('GDP')
-        if df_gdp is not None and not df_gdp.empty:
-            fig_gdp = create_plot_type(df_gdp, 'GDP', 'area')
-            fig_gdp.update_layout(height=460, title_font_size=18, margin=dict(t=40, l=0, r=0, b=20))
-            st.plotly_chart(fig_gdp, use_container_width=True, config=PLOTLY_CONFIG)
-        else:
-            st.error("GDP data not available.")
-
-        # --- Beneath GDP: School Enrollment and Internet Usage histograms ---
-        sub1, sub2 = st.columns(2)
-        with sub1:
-            df_edu = df_filtered.get('Education')
-            if df_edu is not None and not df_edu.empty:
-                fig_h1 = create_plot_type(df_edu, 'Education', 'hist')
-                st.plotly_chart(fig_h1, use_container_width=True, config=PLOTLY_CONFIG)
-            else:
-                st.warning("Education data not available.")
-        with sub2:
-            df_health = df_filtered.get('Health')
-            if df_health is not None and not df_health.empty:
-                fig_h2 = create_plot_type(df_health, 'Health', 'hist')
-                st.plotly_chart(fig_h2, use_container_width=True, config=PLOTLY_CONFIG)
-            else:
-                st.warning("Internet/Health data not available.")
+# --- 3) Enhanced GDP Chart (Full Width, Bigger, More Stylized) ---
+    st.subheader("📈 Pakistan GDP Growth Trajectory")
+    df_gdp = df_filtered.get('GDP')
+    if df_gdp is not None and not df_gdp.empty:
+        # Create enhanced GDP area chart with better styling
+        fig_gdp = px.area(
+            df_gdp, 
+            x='Year', 
+            y='Value',
+            title='Pakistan GDP (Current US$) - Economic Growth Over Time',
+            labels={'Value': 'GDP (USD)', 'Year': 'Year'},
+            template='plotly_white'
+        )
+        
+        # Enhanced styling for GDP chart
+        fig_gdp.update_traces(
+            fill='tozeroy',
+            fillcolor='rgba(31, 119, 180, 0.3)',
+            line=dict(color='#1f77b4', width=4, shape='spline'),
+            marker=dict(size=8, color='white', line=dict(width=2, color='#1f77b4')),
+            hovertemplate='<b>GDP</b><br>Year: %{x}<br>Value: $%{y:,.0f}<extra></extra>'
+        )
+        
+        fig_gdp.update_layout(
+            height=600,  # Bigger height
+            title=dict(
+                text='<b>Pakistan GDP (Current US$) - Economic Growth Over Time</b>',
+                x=0.5,
+                font=dict(size=24, color='#2c3e50')
+            ),
+            xaxis=dict(
+                title=dict(text='Year', font=dict(size=16)),
+                tickfont=dict(size=14),
+                gridcolor='rgba(0,0,0,0.1)',
+                showgrid=True
+            ),
+            yaxis=dict(
+                title=dict(text='GDP (USD)', font=dict(size=16)),
+                tickfont=dict(size=14),
+                tickformat='$,.0s',
+                gridcolor='rgba(0,0,0,0.1)',
+                showgrid=True
+            ),
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            margin=dict(t=80, l=80, r=80, b=80),
+            hovermode='x unified'
+        )
+        
+        st.plotly_chart(fig_gdp, use_container_width=True, config=PLOTLY_CONFIG)
+    else:
+        st.error("GDP data not available.")
 
     st.markdown("---")
 
-    # --- 4) Last: Comparison chart (multi-axis) ---
+    # --- 4) Enhanced Side-by-Side Charts (Education & Internet Usage) ---
+    st.subheader("📊 Social Development Indicators Distribution")
+    
+    col1, col2 = st.columns(2, gap="large")
+    
+    with col1:
+        df_edu = df_filtered.get('Education')
+        if df_edu is not None and not df_edu.empty:
+            # Enhanced Education histogram
+            fig_edu = px.histogram(
+                df_edu, 
+                x='Value',
+                nbins=15,
+                title='School Enrollment Distribution (%)',
+                labels={'Value': 'Enrollment Rate (%)', 'count': 'Frequency'},
+                template='plotly_white'
+            )
+            
+            fig_edu.update_traces(
+                marker=dict(color='#2ca02c', opacity=0.8, line=dict(color='white', width=1)),
+                hovertemplate='<b>School Enrollment</b><br>Range: %{x:.1f}%<br>Count: %{y}<extra></extra>'
+            )
+            
+            fig_edu.update_layout(
+                height=450,
+                title=dict(
+                    text='<b>School Enrollment Distribution</b>',
+                    x=0.5,
+                    font=dict(size=18, color='#2c3e50')
+                ),
+                xaxis=dict(
+                    title=dict(text='Enrollment Rate (%)', font=dict(size=14)),
+                    tickfont=dict(size=12),
+                    gridcolor='rgba(0,0,0,0.1)'
+                ),
+                yaxis=dict(
+                    title=dict(text='Frequency', font=dict(size=14)),
+                    tickfont=dict(size=12),
+                    gridcolor='rgba(0,0,0,0.1)'
+                ),
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                margin=dict(t=60, l=60, r=60, b=60),
+                bargap=0.1
+            )
+            
+            st.plotly_chart(fig_edu, use_container_width=True, config=PLOTLY_CONFIG)
+        else:
+            st.warning("Education data not available.")
+    
+    with col2:
+        df_health = df_filtered.get('Health')
+        if df_health is not None and not df_health.empty:
+            # Enhanced Internet Usage histogram
+            fig_health = px.histogram(
+                df_health, 
+                x='Value',
+                nbins=15,
+                title='Internet Usage Distribution (%)',
+                labels={'Value': 'Internet Users (%)', 'count': 'Frequency'},
+                template='plotly_white'
+            )
+            
+            fig_health.update_traces(
+                marker=dict(color='#ff7f0e', opacity=0.8, line=dict(color='white', width=1)),
+                hovertemplate='<b>Internet Usage</b><br>Range: %{x:.1f}%<br>Count: %{y}<extra></extra>'
+            )
+            
+            fig_health.update_layout(
+                height=450,
+                title=dict(
+                    text='<b>Internet Usage Distribution</b>',
+                    x=0.5,
+                    font=dict(size=18, color='#2c3e50')
+                ),
+                xaxis=dict(
+                    title=dict(text='Internet Users (%)', font=dict(size=14)),
+                    tickfont=dict(size=12),
+                    gridcolor='rgba(0,0,0,0.1)'
+                ),
+                yaxis=dict(
+                    title=dict(text='Frequency', font=dict(size=14)),
+                    tickfont=dict(size=12),
+                    gridcolor='rgba(0,0,0,0.1)'
+                ),
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                margin=dict(t=60, l=60, r=60, b=60),
+                bargap=0.1
+            )
+            
+            st.plotly_chart(fig_health, use_container_width=True, config=PLOTLY_CONFIG)
+        else:
+            st.warning("Internet usage data not available.")
+
+    st.markdown("---")
+
+    st.markdown("---")
+    
+    # --- 5) Enhanced Multi-Axis Comparison Chart ---
+    st.subheader("🔄 Comprehensive Development Indicators Comparison")
+    
+    # Create enhanced multi-axis chart with better styling
     fig_multi = create_multi_axis_plot(df_filtered)
+    
+    # Apply additional styling to the multi-axis chart
+    fig_multi.update_layout(
+        height=550,
+        title=dict(
+            text='<b>Pakistan Development Indicators: GDP vs Social Metrics</b>',
+            x=0.5,
+            font=dict(size=22, color='#2c3e50')
+        ),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        margin=dict(t=80, l=80, r=80, b=80),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="center",
+            x=0.5,
+            bgcolor='rgba(255,255,255,0.8)',
+            bordercolor='rgba(0,0,0,0.2)',
+            borderwidth=1
+        )
+    )
+    
     st.plotly_chart(fig_multi, use_container_width=True, config=PLOTLY_CONFIG)
 
-    st.caption("Left axis: GDP (USD, SI notation). Right axis: percentage scale 0–100%.")
+    # Enhanced caption with better formatting
+    st.info("📊 **Chart Guide:** Blue bars represent GDP in USD (left axis), while colored lines show percentage indicators (right axis). This visualization helps identify correlations between economic growth and social development.")
+    
+    # Add some spacing at the bottom
+    st.markdown("<br>", unsafe_allow_html=True)
 
 
 # --- PAGE FUNCTION: Forecasting & Modeling (Remains Unchanged) ---
@@ -153,7 +312,8 @@ def main():
     """Sets up the app structure and routes to the selected page."""
 
     st.set_page_config(
-        page_title="Pakistan Data Twin Visualization",
+        page_title="Pakistan Data Twin Dashboard",
+        page_icon="📊",
         layout="wide",
         initial_sidebar_state="expanded"
     )
