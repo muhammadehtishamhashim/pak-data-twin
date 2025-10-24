@@ -1,9 +1,0 @@
-[project]
-name = "pak-data-twin"
-version = "1.0.0"
-description = "Pakistan Data Twin Dashboard"
-requires-python = ">=3.10,<3.13"
-
-[build-system]
-requires = ["setuptools>=45", "wheel"]
-build-backend = "setuptools.build_meta"
