@@ -1,4 +1,4 @@
-# src/app/main.py (FIXED DEPRECATION WARNINGS)
+# src/app/main.py (dashboard revamp + deprecation-safe plotly usage)
 
 import sys
 import os
@@ -21,134 +21,90 @@ from src.charts import create_plot_type, get_kpi_value, create_multi_axis_plot
 
 # Define a standard Plotly configuration for Streamlit (to address deprecation warning)
 PLOTLY_CONFIG = {
-    'displayModeBar': False, # Hides the default Plotly menu (common request)
+    'displayModeBar': False,  # Hides the default Plotly menu
     'responsive': True,
-    'scrollZoom': True # Allows zoom on the multi-axis plot
+    'scrollZoom': False  # Disable scroll-wheel zoom to prevent accidental zooming
 }
 
 
 # --- PAGE FUNCTION: Dashboard Overview ---
 
 def render_dashboard(data_dict: Dict[str, pd.DataFrame]):
-    """Renders the Dashboard Overview page with the new visual layout."""
+    """Beautiful, consistent dashboard layout (cards + trend + donuts)."""
 
-    st.title("📊 Key Socio-Economic Indicators Dashboard")
-    st.markdown("A multi-view analysis of Pakistan's **GDP**, **Education**, and **Digital Penetration** trends with stylized visualizations.")
+    st.title("📊 Pakistan Data Twin Dashboard")
+    st.caption("GDP, Education and Internet indicators with a clean, consistent layout.")
     st.markdown("---")
 
-    # --- 1. SIDEBAR FILTER (Year Range) ---
-    st.sidebar.subheader("Dashboard Filters")
-    
+    # --- 1) Sidebar: Year range filter ---
+    st.sidebar.subheader("Filters")
     all_years = []
     for df in data_dict.values():
         if not df.empty:
             all_years.extend(df['Year'].unique())
-            
     if not all_years:
         st.warning("No data available to set filters. Check your data_processed folder.")
         return
 
-    min_year = int(min(all_years))
-    max_year = int(max(all_years))
-    
+    min_year, max_year = int(min(all_years)), int(max(all_years))
     selected_years = st.sidebar.slider(
-        'Filter Year Range:',
-        min_value=min_year,
-        max_value=max_year,
-        value=(min_year, max_year),
-        key="dashboard_year_filter" 
+        'Year range', min_value=min_year, max_value=max_year,
+        value=(min_year, max_year), key="dashboard_year_filter"
     )
-    
-    # Filter all data
-    df_filtered = {}
+
+    # Filter all data upfront
+    df_filtered: Dict[str, pd.DataFrame] = {}
     for cat, df in data_dict.items():
         if not df.empty:
             df_filtered[cat] = df[(df['Year'] >= selected_years[0]) & (df['Year'] <= selected_years[1])]
 
-
-    # --- 2. KPI Section (Row 1) ---
-    st.subheader(f"Current Metrics Summary")
+    # --- 2) KPI cards (top row) ---
     kpi_cols = st.columns(3)
-    
     for i, category in enumerate(DASHBOARD_INDICATORS):
         df = df_filtered.get(category)
         if df is not None and not df.empty:
             value, delta = get_kpi_value(df, category)
-            kpi_cols[i].metric(
-                label=f"Latest {category}",
-                value=value,
-                delta=f"{delta:.2f}% YoY"
-            )
+            kpi_cols[i].metric(label=f"{category}", value=value, delta=f"{delta:.2f}% YoY")
         else:
-            kpi_cols[i].metric(label=f"Latest {category}", value="N/A", delta="N/A")
-            
-    st.markdown("---")
-
-
-    # --- 3. Visualization Grid: Row 2 (3-Column Layout) ---
-    # Layout: [Small Chart 1] | [BIG AREA CHART (GDP)] | [Small Chart 2]
-    
-    # Adjusted column ratio for aesthetic balance (1.2:2:1.2)
-    col_small_1, col_big_center, col_small_2 = st.columns([1.2, 2, 1.2]) 
-
-    # Chart 2.1 (Small Left): Education - Horizontal Bar Chart (STYLED HBAR)
-    with col_small_1:
-        df_edu_filtered = df_filtered.get('Education')
-        if df_edu_filtered is not None and not df_edu_filtered.empty:
-            fig = create_plot_type(df_edu_filtered, 'Education', 'hbar')
-            # FIX: Using config dictionary
-            st.plotly_chart(fig, width='stretch', config=PLOTLY_CONFIG)
-        else:
-            st.warning("Education Data not available.")
-
-    # Chart 2.2 (BIG CENTER): GDP - Area Chart (STYLED AREA CHART)
-    with col_big_center:
-        df_gdp_filtered = df_filtered.get('GDP')
-        if df_gdp_filtered is not None and not df_gdp_filtered.empty:
-            fig = create_plot_type(df_gdp_filtered, 'GDP', 'area')
-            # Set explicit height here to override the default and make it larger
-            fig.update_layout(height=480, title_font_size=18, margin=dict(t=50, l=0, r=0, b=20)) 
-            # FIX: Using config dictionary
-            st.plotly_chart(fig, width='stretch', config=PLOTLY_CONFIG)
-        else:
-            st.error("GDP Data not available for Area Chart.")
-
-    # Chart 2.3 (Small Right): Health/Digital Penetration - Pie Chart
-    with col_small_2:
-        df_net_filtered = df_filtered.get('Health')
-        if df_net_filtered is not None and not df_net_filtered.empty:
-            fig = create_plot_type(df_net_filtered, 'Health', 'pie')
-            # FIX: Using config dictionary (Pie chart height is set in charts.py)
-            st.plotly_chart(fig, width='stretch', config=PLOTLY_CONFIG)
-        else:
-            st.warning("Digital Penetration Data not available.")
-
+            kpi_cols[i].metric(label=f"{category}", value="N/A", delta="N/A")
 
     st.markdown("---")
 
-    # --- 4. Visualization Grid: Row 3 (1-Column Layout + Text) ---
-    col_chart_large, col_text = st.columns([3, 1])
+# --- 3) Main center: GDP ---
+    left_spacer, center, right_spacer = st.columns([1, 2, 1])
+    with center:
+        df_gdp = df_filtered.get('GDP')
+        if df_gdp is not None and not df_gdp.empty:
+            fig_gdp = create_plot_type(df_gdp, 'GDP', 'area')
+            fig_gdp.update_layout(height=460, title_font_size=18, margin=dict(t=40, l=0, r=0, b=20))
+            st.plotly_chart(fig_gdp, use_container_width=True, config=PLOTLY_CONFIG)
+        else:
+            st.error("GDP data not available.")
 
-    # Chart 3.1 (Large Chart): Combined Indicator Trend (MIXED SUBPLOTS)
-    with col_chart_large:
-        st.subheader("Combined Indicator Trend (Multi-Axis)")
-        
-        fig_multi = create_multi_axis_plot(data_dict)
-        # FIX: Using config dictionary
-        st.plotly_chart(fig_multi, width='stretch', config=PLOTLY_CONFIG)
+        # --- Beneath GDP: School Enrollment and Internet Usage histograms ---
+        sub1, sub2 = st.columns(2)
+        with sub1:
+            df_edu = df_filtered.get('Education')
+            if df_edu is not None and not df_edu.empty:
+                fig_h1 = create_plot_type(df_edu, 'Education', 'hist')
+                st.plotly_chart(fig_h1, use_container_width=True, config=PLOTLY_CONFIG)
+            else:
+                st.warning("Education data not available.")
+        with sub2:
+            df_health = df_filtered.get('Health')
+            if df_health is not None and not df_health.empty:
+                fig_h2 = create_plot_type(df_health, 'Health', 'hist')
+                st.plotly_chart(fig_h2, use_container_width=True, config=PLOTLY_CONFIG)
+            else:
+                st.warning("Internet/Health data not available.")
 
-    # Text 3.2 (Summary Text)
-    with col_text:
-        st.subheader("Insight Summary")
-        st.info(
-            f"The **GDP Area Chart** highlights the overall economic trajectory "
-            f"from {selected_years[0]} to {selected_years[1]}. "
-            f"The **Combined Trend Chart** uses a secondary Y-axis to correctly "
-            f"compare the scale of GDP (left axis) against the percentage-based "
-            f"indicators (right axis). This reveals potential correlations over time."
-        )
-        st.markdown("---")
-        st.caption("The multi-axis chart is crucial for comparing metrics on vastly different scales.")
+    st.markdown("---")
+
+    # --- 4) Last: Comparison chart (multi-axis) ---
+    fig_multi = create_multi_axis_plot(df_filtered)
+    st.plotly_chart(fig_multi, use_container_width=True, config=PLOTLY_CONFIG)
+
+    st.caption("Left axis: GDP (USD, SI notation). Right axis: percentage scale 0–100%.")
 
 
 # --- PAGE FUNCTION: Forecasting & Modeling (Remains Unchanged) ---
@@ -178,7 +134,7 @@ def render_forecasting(data_dict: Dict[str, pd.DataFrame]):
         
         fig = create_plot_type(df_current, selected_category, 'line')
         # FIX: Using config dictionary
-        st.plotly_chart(fig, width='stretch', config=PLOTLY_CONFIG)
+        st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
         
         st.markdown("---")
         st.markdown("Future sections will include: Model Parameters, Forecast Chart, and Model Evaluation.")

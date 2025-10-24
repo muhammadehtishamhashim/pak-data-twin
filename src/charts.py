@@ -7,11 +7,12 @@ from plotly.subplots import make_subplots
 from typing import Dict, List
 from src.config import CATEGORY_MAPPING, DASHBOARD_INDICATORS
 
-# Define a custom color palette for styling consistency
-COLOR_PRIMARY = '#1f77b4' # Plotly Blue
-COLOR_ACCENT = '#ff7f0e'  # Plotly Orange
-COLOR_GDP = '#1e88e5' # Strong Blue for Area
-COLOR_EDU = '#4caf50' # Green for Education Bar
+# Unified color palette for the whole dashboard
+COLOR_PRIMARY = '#6C5CE7'   # Purple (cards/accent)
+COLOR_ACCENT = '#00C48C'    # Teal/green (bars)
+COLOR_GDP = '#6C5CE7'       # Purple for GDP area/line
+COLOR_EDU = '#00C48C'       # Teal for Education
+COLOR_HEALTH = '#FF8A00'    # Orange for Internet/Health
 
 def get_kpi_value(df: pd.DataFrame, category: str) -> (str, float):
     """Calculates the latest available value for a KPI and its growth delta."""
@@ -69,56 +70,83 @@ def create_plot_type(df_filtered: pd.DataFrame, category: str, chart_type: str):
             marker=dict(size=6, color='white', line=dict(width=1, color=COLOR_GDP))
         )
 
-    elif chart_type == 'hbar':
-        # Education Horizontal Bar Chart: Colored, Stylized, attempting round look
+    elif chart_type == 'bar':
+        # Vertical Bar Chart for category values across years
         fig = px.bar(
             df_filtered,
-            x='Value',
-            y='Year',
-            orientation='h',
+            x='Year',
+            y='Value',
             title=title_text,
             labels={'Value': y_label, 'Year': 'Year'},
             template='plotly_white',
-            color_discrete_sequence=[COLOR_EDU] # Use green
+            color_discrete_sequence=[COLOR_EDU]
         )
-        # Styling for a clean, modern look (simulating soft corners using layout)
-        fig.update_traces(
-            marker_line_width=0, 
-            opacity=0.9
-        )
+        fig.update_traces(marker_line_width=0, opacity=0.9)
         fig.update_layout(
-            yaxis={'categoryorder':'category ascending'},
-            bargap=0.1, # Small gap between bars
+            bargap=0.15,
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)',
         )
 
-    elif chart_type == 'pie':
+    elif chart_type == 'donut':
         latest_year = df_filtered['Year'].max()
         latest_value = df_filtered[df_filtered['Year'] == latest_year]['Value'].iloc[0]
         
-        pie_data = pd.DataFrame({
+        donut_data = pd.DataFrame({
             'Metric': [f'{title_text} ({latest_year})', 'Remainder'],
-            'Value': [latest_value, max(0, 100 - latest_value)]
+            'Value': [latest_value, max(0, 100 - float(latest_value))]
         })
         
         fig = px.pie(
-            pie_data, 
+            donut_data, 
             names='Metric', 
             values='Value', 
-            title=f'{title_text} Distribution ({latest_year})', 
+            title=f'{title_text} ({latest_year})', 
             template='plotly_white',
-            color_discrete_sequence=['#ff9800', '#cccccc'] # Orange/Grey palette
+            color_discrete_sequence=[COLOR_HEALTH, '#EDEBFF']
         )
-        fig.update_layout(height=450, margin=dict(t=50, b=0, l=0, r=0))
+        fig.update_layout(height=420, margin=dict(t=50, b=0, l=0, r=0))
         fig.update_traces(
+            hole=0.7,
             textposition='inside', 
-            textinfo='percent+label', 
-            marker=dict(line=dict(color='white', width=2)) # White border for separation
+            textinfo='percent', 
+            marker=dict(line=dict(color='white', width=2))
+        )
+
+    elif chart_type == 'hist':
+        # Styled histogram using Value distribution within selected range
+        values = df_filtered['Value'].dropna().astype(float).values
+        if values.size == 0:
+            return go.Figure().update_layout(title=f"{title_text}: No Data")
+        vmin, vmax = float(values.min()), float(values.max())
+        rng = max(vmax - vmin, 1e-9)
+        bin_size = max(rng / 20.0, 0.1)
+        color = COLOR_EDU if category == 'Education' else (COLOR_HEALTH if category == 'Health' else COLOR_PRIMARY)
+        fig = go.Figure()
+        fig.add_trace(go.Histogram(
+            x=values,
+            histnorm='percent',
+            name=title_text,
+            xbins=dict(start=vmin, end=vmax, size=bin_size),
+            marker_color=color,
+            opacity=0.75
+        ))
+        fig.update_layout(
+            title_text=title_text,
+            xaxis_title_text='Value',
+            yaxis_title_text='Percent',
+            bargap=0.2,
+            bargroupgap=0.1,
+            template='plotly_white',
+            height=320
         )
 
     else:
-        fig = px.line(df_filtered, x='Year', y='Value', title=title_text)
+        fig = px.line(
+            df_filtered, x='Year', y='Value', title=title_text,
+            template='plotly_white', color_discrete_sequence=[COLOR_PRIMARY]
+        )
+        fig.update_traces(mode='lines+markers', line=dict(width=3))
 
     # --- Layout Update ---
     fig.update_layout(
@@ -189,16 +217,16 @@ def create_multi_axis_plot(data_dict: Dict[str, pd.DataFrame]) -> go.Figure:
             x=years, 
             # FIX: Use float('nan') instead of None
             y=health_data.reindex(years).fillna(float('nan')),
-            name='Digital Penetration (%)',
+            name='Internet Users (%)',
             mode='lines+markers',
-            line=dict(color='#8e24aa', width=3, dash='dot') # Purple, dotted line
+            line=dict(color=COLOR_HEALTH, width=3, dash='dot')
         ),
         secondary_y=True,
     )
 
     # 5. Update Layout and Axes
     fig.update_layout(
-        title_text='<b>Comparison: GDP vs. Socio-Economic Indicators</b>',
+        title_text='<b>Trends: GDP vs Percentage Indicators</b>',
         template='plotly_white',
         hovermode="x unified",
         margin=dict(t=50, b=20, l=40, r=40),
@@ -226,3 +254,5 @@ def create_multi_axis_plot(data_dict: Dict[str, pd.DataFrame]) -> go.Figure:
     fig.update_layout(height=500)
 
     return fig
+
+
