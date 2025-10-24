@@ -4,7 +4,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go 
 from plotly.subplots import make_subplots 
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from src.config import CATEGORY_MAPPING, DASHBOARD_INDICATORS
 
 # Chart-specific color palette (independent from Streamlit theme)
@@ -15,7 +15,7 @@ COLOR_EDU = '#2ca02c'       # Green for Education
 COLOR_HEALTH = '#ff7f0e'    # Orange for Internet/Health
 COLOR_TEXT = '#2c3e50'      # Dark color for chart text/axes
 
-def get_kpi_value(df: pd.DataFrame, category: str) -> (str, float):
+def get_kpi_value(df: pd.DataFrame, category: str) -> Tuple[str, float]:
     """Calculates the latest available value for a KPI and its growth delta."""
     if df.empty:
         return "N/A", 0.0

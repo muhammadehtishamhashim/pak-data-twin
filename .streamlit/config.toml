@@ -59,11 +59,14 @@ showWidgetBorder = true
 # Sidebar border is handled by theme.showSidebarBorder (not theme.sidebar.showSidebarBorder)
 
 [server]
-# Server configuration for better performance
+# Server configuration optimized for Streamlit Cloud
 headless = false
 port = 8501
 enableCORS = true
 enableXsrfProtection = true
+maxUploadSize = 200
+maxMessageSize = 200
+enableWebsocketCompression = false
 
 [browser]
 # Browser configuration
