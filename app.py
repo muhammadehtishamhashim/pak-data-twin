@@ -431,7 +431,7 @@ if st.session_state.show_landing:
     with col2:
         st.markdown('''
         <div style="text-align: center; padding: 1rem;">
-            <img src="https://ml.globenewswire.com/Resource/Download/54ca9baa-43ae-4b0d-bcc3-5dcde3ab7ce0?size=2" 
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6UTPV9TTPThzYSFv8Ps9o4hdlr84SRn_f5g&s" 
                  style="height: 60px; width: auto; object-fit: contain; margin-bottom: 0.5rem;" 
                  alt="Plotly">
             <div style="font-weight: 600; color: #0f4c3a; font-size: 0.9rem;">Plotly</div>
