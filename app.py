@@ -290,7 +290,7 @@ if st.session_state.show_landing:
     <div class="welcome-container">
         <div class="welcome-flag">
             <img src="https://png.pngtree.com/recommend-works/png-clipart/20250705/ourmid/pngtree-artistic-brush-stroke-style-pakistan-flag-illustration-png-image_16607058.webp" 
-                 style="height: 160px; width: auto; object-fit: contain; margin: 0 auto; display: block;" 
+                 style="height: 110px; width: auto; object-fit: contain; margin: 0 auto; display: block;" 
                  alt="Pakistan Flag">
         </div>
         <h1 class="welcome-title">PAKISTAN DATA TWIN</h1>

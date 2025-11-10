@@ -3,350 +3,460 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-import os
 
-def load_faculty_data():
-    """Load and clean faculty data with multiple encoding attempts"""
-    try:
-        # Try to load the actual dataset
-        encodings = ['utf-8', 'latin1', 'iso-8859-1', 'cp1252', 'utf-16']
-        df = None
-        
-        for encoding in encodings:
-            try:
-                df = pd.read_csv('datasets_raw/Education/computer-science-intellectual-capital.csv', encoding=encoding)
-                break
-            except (UnicodeDecodeError, FileNotFoundError):
-                continue
-        
-        if df is None:
-            # Create sample data if file not found
-            df = pd.DataFrame({
-                'Designation': ['Professor', 'Associate Professor', 'Assistant Professor', 'Lecturer', 'Lab Engineer'] * 200,
-                'Terminal Degree': ['PhD', 'MS', 'MPhil', 'BS', 'MSc', 'MBA'] * 167,
-                'Province University Located': ['Punjab', 'Sindh', 'Capital', 'Balochistan', 'KPK'] * 200,
-                'University Currently Teaching': [f'University {i}' for i in range(1, 51)] * 20,
-                'Country': ['Pakistan', 'USA', 'UK', 'China', 'Germany', 'France', 'Australia'] * 143
-            })
-        
-        # Clean the data
-        def clean_text_column(column):
-            if column in df.columns:
-                df[column] = df[column].astype(str).str.upper().str.strip().str.title()
-                df[column] = df[column].replace(['', 'Nan', 'None', 'Na'], pd.NA)
-        
-        clean_text_column('Terminal Degree')
-        clean_text_column('Designation')
-        clean_text_column('Province University Located')
-        clean_text_column('Country')
-        
-        # Clean degree names
-        degree_mapping = {
-            'Phd': 'PhD', 'Ph.D': 'PhD', 'Ph.D.': 'PhD',
-            'Ms': 'MS', 'M.S': 'MS', 'M.Sc': 'MSc', 'Msc': 'MSc',
-            'Mphil': 'MPhil', 'M.Phil': 'MPhil',
-            'Bs': 'BS', 'B.S': 'BS', 'B.Sc': 'BSc', 'B.E': 'BE',
-            'Mba': 'MBA', 'M.Com': 'MCom', 'Mcom': 'MCom'
-        }
-        
-        df['Degree_Clean'] = df['Terminal Degree'].fillna('Not Specified')
-        for old, new in degree_mapping.items():
-            df['Degree_Clean'] = df['Degree_Clean'].str.replace(old, new, regex=False)
-        
-        return df
-    
-    except Exception as e:
-        st.error(f"Error loading data: {e}")
-        return None
 
 def show():
-    # Custom CSS for better styling
-    st.markdown("""
-    <style>
-    .main > div {
-        padding-top: 1rem;
-    }
-    h1 {
-        font-size: 2rem !important;
-        margin-bottom: 0.5rem !important;
-    }
-    h2 {
-        font-size: 1.5rem !important;
-        margin-top: 1rem !important;
-        margin-bottom: 0.5rem !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    
     st.title("🎓 Education Dashboard")
-    st.markdown("*Comprehensive analysis of Pakistan's educational landscape and faculty distribution*")
+    st.markdown("*Comprehensive analysis of Pakistan's education system - Enrollments and Teachers*")
     
-    # Load data
-    df = load_faculty_data()
+    # Create tabs for Enrollments and Teachers
+    tab1, tab2 = st.tabs(["📚 Student Enrollments", "👨‍🏫 Teachers"])
     
-    if df is not None:
-        # Calculate key metrics
-        total_faculty = len(df)
-        unique_universities = df['University Currently Teaching'].nunique()
-        phd_count = df['Degree_Clean'].str.contains('PhD', case=False, na=False).sum()
-        provinces = df['Province University Located'].nunique()
-        
-        # Key metrics row
-        col1, col2, col3, col4 = st.columns(4)
-        
-        with col1:
-            st.metric("Total Faculty", f"{total_faculty:,}", "Computer Science")
-        
-        with col2:
-            st.metric("Universities", f"{unique_universities}", "Institutions")
-        
-        with col3:
-            st.metric("PhD Holders", f"{phd_count:,}", f"{(phd_count/total_faculty)*100:.1f}%")
-        
-        with col4:
-            st.metric("Provinces", f"{provinces}", "Coverage")
-        
-        st.markdown("---")
-        
-        # Main dashboard content
-        tab1, tab2, tab3 = st.tabs(["📊 Faculty Overview", "🏛️ Universities", "📍 Geographic Distribution"])
-        
-        with tab1:
-            st.subheader("Faculty Qualifications & Designations")
-            
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                # Terminal Degree Distribution
-                degree_counts = df['Degree_Clean'].value_counts().head(8)
-                fig_degrees = px.pie(
-                    values=degree_counts.values, 
-                    names=degree_counts.index,
-                    title='Terminal Degree Distribution (Top 8)',
-                    hole=0.4,
-                    color_discrete_sequence=px.colors.qualitative.Set3
-                )
-                fig_degrees.update_traces(
-                    hovertemplate="<b>%{label}</b><br>" +
-                                  "Count: %{value}<br>" +
-                                  "Percentage: %{percent}<br>" +
-                                  "<extra></extra>"
-                )
-                st.plotly_chart(fig_degrees, use_container_width=True)
-            
-            with col2:
-                # Designation Distribution
-                designation_counts = df['Designation'].value_counts().head(8)
-                fig_designations = px.bar(
-                    x=designation_counts.index, 
-                    y=designation_counts.values,
-                    title='Faculty Designation Distribution',
-                    labels={'x': 'Designation', 'y': 'Count'},
-                    color=designation_counts.values,
-                    color_continuous_scale='Viridis'
-                )
-                fig_designations.update_layout(
-                    xaxis_tickangle=-45, 
-                    showlegend=False
-                )
-                fig_designations.update_traces(
-                    hovertemplate="<b>%{x}</b><br>" +
-                                  "Count: %{y}<br>" +
-                                  "<extra></extra>"
-                )
-                st.plotly_chart(fig_designations, use_container_width=True)
-            
-            # Faculty Hierarchy Pyramid
-            st.subheader("Academic Hierarchy Distribution")
-            hierarchy_order = ['Professor', 'Associate Professor', 'Assistant Professor', 'Lecturer', 'Lab Engineer']
-            hierarchy_counts = df[df['Designation'].isin(hierarchy_order)]['Designation'].value_counts()
-            hierarchy_counts = hierarchy_counts.reindex(hierarchy_order, fill_value=0)
-            
-            fig_hierarchy = px.bar(
-                y=hierarchy_counts.index, 
-                x=hierarchy_counts.values,
-                title='Faculty Hierarchy Distribution',
-                labels={'y': 'Academic Position', 'x': 'Number of Faculty'},
-                orientation='h',
-                color=hierarchy_counts.values,
-                color_continuous_scale='Teal'
-            )
-            fig_hierarchy.update_traces(
-                hovertemplate="<b>%{y}</b><br>" +
-                              "Count: %{x}<br>" +
-                              "<extra></extra>"
-            )
-            st.plotly_chart(fig_hierarchy, use_container_width=True)
-            
-            # Qualification Overview
-            st.subheader("Qualification Summary")
-            ms_count = df['Degree_Clean'].str.contains('MS|MSc', case=False, na=False).sum()
-            other_count = total_faculty - phd_count - ms_count
-            
-            qual_data = {
-                'Category': ['PhD Holders', 'MS/MSc Holders', 'Other Qualifications'],
-                'Count': [phd_count, ms_count, other_count],
-                'Percentage': [
-                    (phd_count/total_faculty)*100,
-                    (ms_count/total_faculty)*100,
-                    (other_count/total_faculty)*100
-                ]
-            }
-            
-            fig_qual = px.pie(
-                qual_data, 
-                values='Count', 
-                names='Category',
-                title='Faculty Qualification Overview',
-                hole=0.5,
-                color_discrete_sequence=px.colors.qualitative.Bold
-            )
-            fig_qual.update_traces(
-                hovertemplate="<b>%{label}</b><br>" +
-                              "Count: %{value}<br>" +
-                              "Percentage: %{percent}<br>" +
-                              "<extra></extra>"
-            )
-            st.plotly_chart(fig_qual, use_container_width=True)
-        
-        with tab2:
-            st.subheader("University Analysis")
-            
-            # Top Universities by Faculty Count
-            university_counts = df['University Currently Teaching'].value_counts().head(15)
-            fig_unis = px.bar(
-                x=university_counts.index, 
-                y=university_counts.values,
-                title='Top 15 Universities by Faculty Count',
-                labels={'x': 'University', 'y': 'Number of Faculty'},
-                color=university_counts.values,
-                color_continuous_scale='Plasma'
-            )
-            fig_unis.update_layout(
-                xaxis_tickangle=-45, 
-                showlegend=False,
-                height=500
-            )
-            fig_unis.update_traces(
-                hovertemplate="<b>%{x}</b><br>" +
-                              "Faculty Count: %{y}<br>" +
-                              "<extra></extra>"
-            )
-            st.plotly_chart(fig_unis, use_container_width=True)
-            
-            # University Statistics
-            col1, col2, col3 = st.columns(3)
-            
-            with col1:
-                st.metric("Total Universities", unique_universities, "Represented")
-            
-            with col2:
-                avg_faculty = total_faculty / unique_universities
-                st.metric("Avg Faculty/University", f"{avg_faculty:.1f}", "Computer Science")
-            
-            with col3:
-                top_uni_count = university_counts.iloc[0] if len(university_counts) > 0 else 0
-                st.metric("Largest Faculty", top_uni_count, university_counts.index[0] if len(university_counts) > 0 else "N/A")
-        
-        with tab3:
-            st.subheader("Geographic Distribution")
-            
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                # Province Distribution
-                province_counts = df['Province University Located'].value_counts()
-                fig_provinces = px.bar(
-                    x=province_counts.index, 
-                    y=province_counts.values,
-                    title='Faculty Distribution by Province',
-                    labels={'x': 'Province', 'y': 'Number of Faculty'},
-                    color=province_counts.index,
-                    color_discrete_sequence=px.colors.qualitative.Set2
-                )
-                fig_provinces.update_layout(
-                    xaxis_tickangle=-45, 
-                    showlegend=False
-                )
-                fig_provinces.update_traces(
-                    hovertemplate="<b>%{x}</b><br>" +
-                                  "Faculty Count: %{y}<br>" +
-                                  "Percentage: %{customdata:.1f}%<br>" +
-                                  "<extra></extra>",
-                    customdata=[(count/total_faculty)*100 for count in province_counts.values]
-                )
-                st.plotly_chart(fig_provinces, use_container_width=True)
-            
-            with col2:
-                # Country of Graduation
-                country_counts = df['Country'].value_counts().head(10)
-                fig_countries = px.bar(
-                    x=country_counts.index, 
-                    y=country_counts.values,
-                    title='Country of Graduation (Top 10)',
-                    labels={'x': 'Country', 'y': 'Number of Faculty'},
-                    color=country_counts.index,
-                    color_discrete_sequence=px.colors.qualitative.Pastel
-                )
-                fig_countries.update_layout(showlegend=False)
-                fig_countries.update_traces(
-                    hovertemplate="<b>%{x}</b><br>" +
-                                  "Faculty Count: %{y}<br>" +
-                                  "<extra></extra>"
-                )
-                st.plotly_chart(fig_countries, use_container_width=True)
-            
-            # Cross-analysis: Degree vs Province
-            st.subheader("Qualification Distribution by Province")
-            degree_province = df.groupby(['Province University Located', 'Degree_Clean']).size().reset_index(name='Count')
-            top_degrees_list = df['Degree_Clean'].value_counts().head(5).index.tolist()
-            degree_province_filtered = degree_province[degree_province['Degree_Clean'].isin(top_degrees_list)]
-            
-            fig_cross = px.bar(
-                degree_province_filtered, 
-                x='Province University Located', 
-                y='Count', 
-                color='Degree_Clean',
-                title='Faculty Distribution: Top 5 Degrees by Province',
-                barmode='group',
-                color_discrete_sequence=px.colors.qualitative.Set1
-            )
-            fig_cross.update_traces(
-                hovertemplate="<b>Province:</b> %{x}<br>" +
-                              "<b>Degree:</b> %{fullData.name}<br>" +
-                              "<b>Count:</b> %{y}<br>" +
-                              "<extra></extra>"
-            )
-            st.plotly_chart(fig_cross, use_container_width=True)
-        
-        # Summary Statistics
-        st.markdown("---")
-        st.subheader("📊 Summary Statistics")
-        
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            st.markdown("**Geographic Coverage:**")
-            for province, count in province_counts.items():
-                percentage = (count / total_faculty) * 100
-                st.write(f"• {province}: {count:,} ({percentage:.1f}%)")
-        
-        with col2:
-            st.markdown("**Top Qualifications:**")
-            for degree, count in df['Degree_Clean'].value_counts().head(5).items():
-                percentage = (count / total_faculty) * 100
-                st.write(f"• {degree}: {count:,} ({percentage:.1f}%)")
-        
-        with col3:
-            st.markdown("**Academic Positions:**")
-            for designation, count in designation_counts.head(5).items():
-                percentage = (count / total_faculty) * 100
-                st.write(f"• {designation}: {count:,} ({percentage:.1f}%)")
+    with tab1:
+        show_enrollment_analysis()
     
-    else:
-        st.error("Unable to load education data. Please check if the dataset is available.")
-        st.info("The dashboard is designed to work with faculty data from Pakistani universities.")
+    with tab2:
+        show_teacher_analysis()
+
+
+def show_enrollment_analysis():
+    """Display enrollment visualizations"""
+    st.subheader("Student Enrollment Analysis")
     
-    # Footer
+    # Load enrollment data
+    enrollment_5yr = pd.read_csv('datasets_cleaned/Education/Enrollments/5_year_enrollment.csv')
+    enrollment_2024 = pd.read_csv('datasets_cleaned/Education/Enrollments/Total_enrollment_2023to2024.csv')
+    enrollment_classwise = pd.read_csv('datasets_cleaned/Education/Enrollments/Enrollment_Class_Wise.csv')
+    enrollment_10yr = pd.read_csv('datasets_cleaned/Education/Enrollments/Total_Enrollent(Public)_Ten_Years.csv')
+    
+    # Key Metrics
+    total_students = enrollment_2024['TOTAL - Total'].sum()
+    total_boys = enrollment_2024['TOTAL - Boys'].sum()
+    total_girls = enrollment_2024['TOTAL - Girls'].sum()
+    urban_students = enrollment_2024['URBAN - Total'].sum()
+    rural_students = enrollment_2024['RURAL - Total'].sum()
+    
+    col1, col2, col3, col4, col5 = st.columns(5)
+    with col1:
+        st.metric("Total Students", f"{total_students/1000000:.1f}M", "2023-24")
+    with col2:
+        st.metric("Boys", f"{total_boys/1000000:.1f}M", f"{(total_boys/total_students)*100:.1f}%")
+    with col3:
+        st.metric("Girls", f"{total_girls/1000000:.1f}M", f"{(total_girls/total_students)*100:.1f}%")
+    with col4:
+        st.metric("Urban", f"{urban_students/1000000:.1f}M", f"{(urban_students/total_students)*100:.1f}%")
+    with col5:
+        st.metric("Rural", f"{rural_students/1000000:.1f}M", f"{(rural_students/total_students)*100:.1f}%")
+    
     st.markdown("---")
-    st.caption("*Pakistan Education Analysis | Faculty Distribution Dashboard*")
+    
+    # Row 1: Provincial Distribution and Gender Distribution
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Provincial enrollment distribution
+        province_data = enrollment_2024[enrollment_2024['Stage'] == 'Total'][['Province/Region', 'TOTAL - Total']]
+        province_data = province_data[province_data['Province/Region'] != 'Pakistan']
+        
+        fig_province = px.bar(
+            province_data,
+            x='Province/Region',
+            y='TOTAL - Total',
+            title='Student Enrollment by Province/Region (2023-24)',
+            labels={'TOTAL - Total': 'Total Students', 'Province/Region': 'Province'},
+            color='TOTAL - Total',
+            color_continuous_scale='Greens'
+        )
+        fig_province.update_traces(
+            text=province_data['TOTAL - Total'].apply(lambda x: f'{x/1000000:.1f}M'),
+            textposition='outside'
+        )
+        fig_province.update_layout(showlegend=False, height=400)
+        st.plotly_chart(fig_province, use_container_width=True)
+    
+    with col2:
+        # Gender distribution by province
+        gender_data = enrollment_2024[enrollment_2024['Stage'] == 'Total'][['Province/Region', 'TOTAL - Boys', 'TOTAL - Girls']]
+        gender_data = gender_data[gender_data['Province/Region'] != 'Pakistan']
+        
+        fig_gender = go.Figure()
+        fig_gender.add_trace(go.Bar(
+            name='Boys',
+            x=gender_data['Province/Region'],
+            y=gender_data['TOTAL - Boys'],
+            marker_color='#0f4c3a'
+        ))
+        fig_gender.add_trace(go.Bar(
+            name='Girls',
+            x=gender_data['Province/Region'],
+            y=gender_data['TOTAL - Girls'],
+            marker_color='#7ee5c7'
+        ))
+        fig_gender.update_layout(
+            title='Gender Distribution by Province (2023-24)',
+            barmode='group',
+            xaxis_title='Province',
+            yaxis_title='Number of Students',
+            height=400
+        )
+        st.plotly_chart(fig_gender, use_container_width=True)
+    
+    # Row 2: Stage-wise enrollment and Urban vs Rural
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Stage-wise enrollment
+        stages = ['Pre Primary', 'Primary', 'Middle', 'High', 'Higher Secondary', 'Degree']
+        stage_data = enrollment_2024[enrollment_2024['Province/Region'] == 'Pakistan']
+        stage_data = stage_data[stage_data['Stage'].isin(stages)]
+        
+        fig_stage = px.pie(
+            stage_data,
+            values='TOTAL - Total',
+            names='Stage',
+            title='Enrollment Distribution by Education Stage (2023-24)',
+            hole=0.4,
+            color_discrete_sequence=px.colors.sequential.Greens
+        )
+        fig_stage.update_traces(textinfo='label+percent')
+        st.plotly_chart(fig_stage, use_container_width=True)
+    
+    with col2:
+        # Urban vs Rural by stage
+        urban_rural_data = enrollment_2024[enrollment_2024['Province/Region'] == 'Pakistan']
+        urban_rural_data = urban_rural_data[urban_rural_data['Stage'].isin(stages)]
+        
+        fig_ur = go.Figure()
+        fig_ur.add_trace(go.Bar(
+            name='Urban',
+            x=urban_rural_data['Stage'],
+            y=urban_rural_data['URBAN - Total'],
+            marker_color='#2ea87e'
+        ))
+        fig_ur.add_trace(go.Bar(
+            name='Rural',
+            x=urban_rural_data['Stage'],
+            y=urban_rural_data['RURAL - Total'],
+            marker_color='#0f4c3a'
+        ))
+        fig_ur.update_layout(
+            title='Urban vs Rural Enrollment by Stage (2023-24)',
+            barmode='stack',
+            xaxis_title='Education Stage',
+            yaxis_title='Number of Students',
+            height=400
+        )
+        st.plotly_chart(fig_ur, use_container_width=True)
+    
+    # Row 3: 5-Year Trends
+    st.subheader("Enrollment Trends (2019-2024)")
+    
+    # Prepare 5-year trend data
+    years = ['2019-20', '2020-21', '2021-22', '2022-23', '2023-24']
+    trend_stages = ['Primary', 'Middle', 'High', 'Higher Secondary/Inter Colleges', 'Universities']
+    trend_data = enrollment_5yr[enrollment_5yr['Stage'].isin(trend_stages) & (enrollment_5yr['Sector'] == 'Total')]
+    
+    fig_trend = go.Figure()
+    colors = ['#0f4c3a', '#1a7f5f', '#2ea87e', '#4fd1a8', '#7ee5c7']
+    
+    for idx, stage in enumerate(trend_stages):
+        stage_row = trend_data[trend_data['Stage'] == stage]
+        values = [stage_row[year].values[0] / 1000000 for year in years]
+        
+        fig_trend.add_trace(go.Scatter(
+            x=years,
+            y=values,
+            mode='lines+markers',
+            name=stage,
+            line=dict(color=colors[idx], width=3),
+            marker=dict(size=8)
+        ))
+    
+    fig_trend.update_layout(
+        title='5-Year Enrollment Trends by Education Stage',
+        xaxis_title='Academic Year',
+        yaxis_title='Students (Millions)',
+        height=450,
+        hovermode='x unified'
+    )
+    st.plotly_chart(fig_trend, use_container_width=True)
+    
+    # Row 4: Sector-wise distribution (Public vs Private)
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Sector distribution pie chart
+        sector_data = enrollment_5yr[enrollment_5yr['Stage'] == 'Total'][['Sector', '2023-24']]
+        sector_data = sector_data[sector_data['Sector'].isin(['Public', 'Private', 'Other Public'])]
+        
+        fig_sector = px.pie(
+            sector_data,
+            values='2023-24',
+            names='Sector',
+            title='Enrollment by Sector (2023-24)',
+            hole=0.4,
+            color_discrete_sequence=['#0f4c3a', '#7ee5c7', '#2ea87e']
+        )
+        fig_sector.update_traces(textinfo='label+percent')
+        st.plotly_chart(fig_sector, use_container_width=True)
+    
+    with col2:
+        # Class-wise enrollment
+        class_data = enrollment_classwise[enrollment_classwise['Stage'] != 'Grand Total']
+        class_totals = class_data.groupby('Stage')['Total - Total'].sum().reset_index()
+        
+        fig_class = px.bar(
+            class_totals,
+            x='Stage',
+            y='Total - Total',
+            title='Total Enrollment by Stage (All Sectors)',
+            labels={'Total - Total': 'Total Students', 'Stage': 'Education Stage'},
+            color='Total - Total',
+            color_continuous_scale='Teal'
+        )
+        fig_class.update_traces(
+            text=class_totals['Total - Total'].apply(lambda x: f'{x/1000000:.1f}M'),
+            textposition='outside'
+        )
+        fig_class.update_layout(showlegend=False, height=400)
+        st.plotly_chart(fig_class, use_container_width=True)
+
+
+def show_teacher_analysis():
+    """Display teacher visualizations"""
+    st.subheader("Teacher Distribution Analysis")
+    
+    # Load teacher data
+    teachers_provincial = pd.read_csv('datasets_cleaned/Education/Teachers/Teachers_Total_Provincial.csv')
+    teachers_academic = pd.read_csv('datasets_cleaned/Education/Teachers/Teacher_Academic_Qualification_Total(Public Sector).csv')
+    teachers_professional = pd.read_csv('datasets_cleaned/Education/Teachers/Teacher_Professional_Qualification_Total(Public Sector).csv')
+    teachers_5yr = pd.read_csv('datasets_cleaned/Education/Teachers/5_year_Teachers.csv')
+    
+    # Key Metrics
+    total_teachers = teachers_provincial[teachers_provincial['Province/Region'] == 'Pakistan']['TOTAL Total'].sum()
+    male_teachers = teachers_provincial[teachers_provincial['Province/Region'] == 'Pakistan']['TOTAL Male'].sum()
+    female_teachers = teachers_provincial[teachers_provincial['Province/Region'] == 'Pakistan']['TOTAL Female'].sum()
+    
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("Total Teachers", f"{total_teachers:,}", "All Levels")
+    with col2:
+        st.metric("Male Teachers", f"{male_teachers:,}", f"{(male_teachers/total_teachers)*100:.1f}%")
+    with col3:
+        st.metric("Female Teachers", f"{female_teachers:,}", f"{(female_teachers/total_teachers)*100:.1f}%")
+    with col4:
+        gender_ratio = female_teachers / male_teachers
+        st.metric("Female:Male Ratio", f"1:{gender_ratio:.2f}", "Gender Balance")
+    
+    st.markdown("---")
+    
+    # Row 1: Provincial distribution and Gender distribution
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Provincial teacher distribution
+        province_teachers = teachers_provincial[teachers_provincial['Province/Region'] != 'Pakistan']
+        province_totals = province_teachers.groupby('Province/Region')['TOTAL Total'].sum().reset_index()
+        
+        fig_prov = px.bar(
+            province_totals,
+            x='Province/Region',
+            y='TOTAL Total',
+            title='Teacher Distribution by Province/Region',
+            labels={'TOTAL Total': 'Number of Teachers', 'Province/Region': 'Province'},
+            color='TOTAL Total',
+            color_continuous_scale='Greens'
+        )
+        fig_prov.update_traces(
+            text=province_totals['TOTAL Total'].apply(lambda x: f'{x:,}'),
+            textposition='outside'
+        )
+        fig_prov.update_layout(showlegend=False, height=400)
+        st.plotly_chart(fig_prov, use_container_width=True)
+    
+    with col2:
+        # Gender distribution by province
+        gender_prov = teachers_provincial[teachers_provincial['Province/Region'] != 'Pakistan']
+        gender_prov_totals = gender_prov.groupby('Province/Region')[['TOTAL Male', 'TOTAL Female']].sum().reset_index()
+        
+        fig_gender_prov = go.Figure()
+        fig_gender_prov.add_trace(go.Bar(
+            name='Male',
+            x=gender_prov_totals['Province/Region'],
+            y=gender_prov_totals['TOTAL Male'],
+            marker_color='#0f4c3a'
+        ))
+        fig_gender_prov.add_trace(go.Bar(
+            name='Female',
+            x=gender_prov_totals['Province/Region'],
+            y=gender_prov_totals['TOTAL Female'],
+            marker_color='#7ee5c7'
+        ))
+        fig_gender_prov.update_layout(
+            title='Gender Distribution of Teachers by Province',
+            barmode='group',
+            xaxis_title='Province',
+            yaxis_title='Number of Teachers',
+            height=400
+        )
+        st.plotly_chart(fig_gender_prov, use_container_width=True)
+    
+    # Row 2: Level-wise distribution and Urban vs Rural
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Teachers by education level
+        pakistan_data = teachers_provincial[teachers_provincial['Province/Region'] == 'Pakistan']
+        levels = ['Pre-Primary', 'Primary', 'Middle', 'High', 'Higher Secondary', 'Degree Colleges']
+        level_data = pakistan_data[pakistan_data['Level'].isin(levels)]
+        
+        fig_level = px.pie(
+            level_data,
+            values='TOTAL Total',
+            names='Level',
+            title='Teacher Distribution by Education Level',
+            hole=0.4,
+            color_discrete_sequence=px.colors.sequential.Greens
+        )
+        fig_level.update_traces(textinfo='label+percent')
+        st.plotly_chart(fig_level, use_container_width=True)
+    
+    with col2:
+        # Urban vs Rural teachers
+        urban_rural = pakistan_data[pakistan_data['Level'].isin(levels)]
+        
+        fig_ur_teachers = go.Figure()
+        fig_ur_teachers.add_trace(go.Bar(
+            name='Urban',
+            x=urban_rural['Level'],
+            y=urban_rural['URBAN Total'],
+            marker_color='#2ea87e'
+        ))
+        fig_ur_teachers.add_trace(go.Bar(
+            name='Rural',
+            x=urban_rural['Level'],
+            y=urban_rural['RURAL Total'],
+            marker_color='#0f4c3a'
+        ))
+        fig_ur_teachers.update_layout(
+            title='Urban vs Rural Teachers by Level',
+            barmode='stack',
+            xaxis_title='Education Level',
+            yaxis_title='Number of Teachers',
+            height=400
+        )
+        st.plotly_chart(fig_ur_teachers, use_container_width=True)
+    
+    # Row 3: Academic Qualifications
+    st.subheader("Teacher Qualifications (Public Sector)")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Academic qualifications
+        academic_total = teachers_academic[teachers_academic['Level'] == 'Total']
+        qual_data = academic_total[['Academic Qualification', 'Total Total']].copy()
+        qual_data = qual_data[qual_data['Academic Qualification'] != 'Not Reported']
+        qual_data = qual_data.sort_values('Total Total', ascending=False)
+        
+        fig_academic = px.bar(
+            qual_data,
+            x='Academic Qualification',
+            y='Total Total',
+            title='Teachers by Academic Qualification',
+            labels={'Total Total': 'Number of Teachers', 'Academic Qualification': 'Qualification'},
+            color='Total Total',
+            color_continuous_scale='Teal'
+        )
+        fig_academic.update_traces(
+            text=qual_data['Total Total'].apply(lambda x: f'{x:,}'),
+            textposition='outside'
+        )
+        fig_academic.update_layout(showlegend=False, height=400, xaxis_tickangle=-45)
+        st.plotly_chart(fig_academic, use_container_width=True)
+    
+    with col2:
+        # Professional qualifications
+        prof_total = teachers_professional[teachers_professional['Level'] == 'Total']
+        prof_data = prof_total[['Professional Qualification', 'Total Total']].copy()
+        prof_data = prof_data[prof_data['Professional Qualification'] != 'Not Mentioned']
+        prof_data = prof_data.sort_values('Total Total', ascending=False)
+        
+        fig_prof = px.bar(
+            prof_data,
+            x='Professional Qualification',
+            y='Total Total',
+            title='Teachers by Professional Qualification',
+            labels={'Total Total': 'Number of Teachers', 'Professional Qualification': 'Qualification'},
+            color='Total Total',
+            color_continuous_scale='Greens'
+        )
+        fig_prof.update_traces(
+            text=prof_data['Total Total'].apply(lambda x: f'{x:,}'),
+            textposition='outside'
+        )
+        fig_prof.update_layout(showlegend=False, height=400, xaxis_tickangle=-45)
+        st.plotly_chart(fig_prof, use_container_width=True)
+    
+    # Row 4: 5-Year Teacher Trends
+    st.subheader("Teacher Growth Trends (2019-2024)")
+    
+    years = ['2019-20', '2020-21', '2021-22', '2022-23', '2023-24']
+    trend_stages = ['Primary', 'Middle', 'High', 'Higher Secondary/Inter Colleges', 'Universities']
+    teacher_trends = teachers_5yr[teachers_5yr['Institution Type'].isin(trend_stages) & (teachers_5yr['Sector'] == 'Total')]
+    
+    fig_teacher_trend = go.Figure()
+    colors = ['#0f4c3a', '#1a7f5f', '#2ea87e', '#4fd1a8', '#7ee5c7']
+    
+    for idx, stage in enumerate(trend_stages):
+        stage_row = teacher_trends[teacher_trends['Institution Type'] == stage]
+        if len(stage_row) > 0:
+            values = [stage_row[year].values[0] for year in years]
+            
+            fig_teacher_trend.add_trace(go.Scatter(
+                x=years,
+                y=values,
+                mode='lines+markers',
+                name=stage,
+                line=dict(color=colors[idx], width=3),
+                marker=dict(size=8)
+            ))
+    
+    fig_teacher_trend.update_layout(
+        title='5-Year Teacher Growth Trends by Education Stage',
+        xaxis_title='Academic Year',
+        yaxis_title='Number of Teachers',
+        height=450,
+        hovermode='x unified'
+    )
+    st.plotly_chart(fig_teacher_trend, use_container_width=True)
+    
+    # Summary Statistics
+    st.markdown("---")
+    st.subheader("📊 Key Insights")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("**Qualification Highlights:**")
+        phd_count = qual_data[qual_data['Academic Qualification'] == 'Ph.D']['Total Total'].values[0] if 'Ph.D' in qual_data['Academic Qualification'].values else 0
+        ma_count = qual_data[qual_data['Academic Qualification'] == 'M.A/M.Sc']['Total Total'].values[0] if 'M.A/M.Sc' in qual_data['Academic Qualification'].values else 0
+        st.write(f"• PhD Holders: {phd_count:,}")
+        st.write(f"• Masters Degree: {ma_count:,}")
+        st.write(f"• MPhil Holders: {qual_data[qual_data['Academic Qualification'] == 'M.Phil']['Total Total'].values[0]:,}")
+    
+    with col2:
+        st.markdown("**Training Status:**")
+        trained = prof_data[prof_data['Professional Qualification'].isin(['B.Ed/BS.Ed', 'M.Ed', 'P.T.C', 'C.T'])]['Total Total'].sum()
+        untrained = prof_data[prof_data['Professional Qualification'] == 'Un-Trained']['Total Total'].values[0] if 'Un-Trained' in prof_data['Professional Qualification'].values else 0
+        st.write(f"• Trained Teachers: {trained:,}")
+        st.write(f"• Un-trained: {untrained:,}")
+        st.write(f"• Training Rate: {(trained/(trained+untrained))*100:.1f}%")
+    
+    with col3:
+        st.markdown("**Distribution:**")
+        urban_total = teachers_provincial[teachers_provincial['Province/Region'] == 'Pakistan']['URBAN Total'].sum()
+        rural_total = teachers_provincial[teachers_provincial['Province/Region'] == 'Pakistan']['RURAL Total'].sum()
+        st.write(f"• Urban Teachers: {urban_total:,}")
+        st.write(f"• Rural Teachers: {rural_total:,}")
+        st.write(f"• Rural Coverage: {(rural_total/total_teachers)*100:.1f}%")
