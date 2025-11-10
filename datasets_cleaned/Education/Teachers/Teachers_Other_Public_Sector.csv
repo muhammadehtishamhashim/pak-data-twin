@@ -1,0 +1,65 @@
+Province/Region,Level,URBAN Male,URBAN Female,URBAN Total,RURAL Male,RURAL Female,RURAL Total,TOTAL Male,TOTAL Female,TOTAL Total
+Punjab,Pre-Primary,6,345,351,19,1177,1196,25,1522,1547
+Punjab,Primary,134,1334,1468,476,4546,5022,610,5880,6490
+Punjab,Middle,2211,14803,17014,816,8460,9276,3027,23263,26290
+Punjab,High,2484,6212,8696,234,1305,1539,2718,7517,10235
+Punjab,Higher Secondary,1283,2070,3353,216,454,670,1499,2524,4023
+Punjab,Inter Colleges,,,,,,,,,
+Punjab,Degree Colleges,,,,,,,,,
+Punjab,Total,6118,24764,30882,1761,15942,17703,7879,40706,48585
+Sindh,Pre-Primary,7,596,603,6,54,60,13,650,663
+Sindh,Primary,103,1538,1641,85,137,222,188,1675,1863
+Sindh,Middle,763,1309,2072,64,47,111,827,1356,2183
+Sindh,High,404,937,1341,60,19,79,464,956,1420
+Sindh,Higher Secondary,369,361,730,,,,369,361,730
+Sindh,Inter Colleges,,,,,,,,,
+Sindh,Degree Colleges,,,,,,,,,
+Sindh,Total,1646,4741,6387,215,257,472,1861,4998,6859
+KP,Pre-Primary,5,101,106,4,315,319,9,416,425
+KP,Primary,34,240,274,70,749,819,104,989,1093
+KP,Middle,89,398,487,193,483,676,282,881,1163
+KP,High,496,728,1224,219,423,642,715,1151,1866
+KP,Higher Secondary,333,155,488,109,81,190,442,236,678
+KP,Inter Colleges,,,,,,,,,
+KP,Degree Colleges,,,,,,,,,
+KP,Total,957,1622,2579,595,2051,2646,1552,3673,5225
+Balochistan,Pre-Primary,,33,33,14,85,99,14,118,132
+Balochistan,Primary,,125,125,326,316,642,326,441,767
+Balochistan,Middle,113,454,567,102,,102,215,454,669
+Balochistan,High,129,203,332,196,117,313,325,320,645
+Balochistan,Higher Secondary,107,53,160,,,,107,53,160
+Balochistan,Inter Colleges,,,,,,,,,
+Balochistan,Degree Colleges,,,,,,,,,
+Balochistan,Total,349,868,1217,638,518,1156,987,1386,2373
+AJ&K,Pre-Primary,,71,71,,54,54,,125,125
+AJ&K,Primary,,170,170,10,130,140,10,300,310
+AJ&K,Middle,,,62,407,469,62,407,469
+AJ&K,High,,305,305,114,42,156,114,347,461
+AJ&K,Higher Secondary,98,64,162,,,,98,64,162
+AJ&K,Inter Colleges,,,,,,,,,
+AJ&K,Degree Colleges,,,,,,,,,
+AJ&K,Total,98,610,708,186,633,819,284,1243,1527
+GB,Pre-Primary,,,,35,35,,35,35
+GB,Primary,,,37,115,152,37,115,152
+GB,Middle,,,36,109,145,36,109,145
+GB,High,,,43,27,70,43,27,70
+GB,Higher Secondary,29,,29,13,28,41,42,28,70
+GB,Inter Colleges,,,,,,,,,
+GB,Degree Colleges,,,,,,,,,
+GB,Total,29,,29,129,314,443,158,314,472
+ICT,Pre-Primary,3,224,227,,17,17,3,241,244
+ICT,Primary,10,441,451,8,34,42,18,475,493
+ICT,Middle,,,52,275,327,52,275,327
+ICT,High,57,115,172,163,431,594,220,546,766
+ICT,Higher Secondary,64,267,331,29,46,75,93,313,406
+ICT,Inter Colleges,,,,,,,,,
+ICT,Degree Colleges,,,,,,,,,
+ICT,Total,134,1047,1181,252,803,1055,386,1850,2236
+Pakistan,Pre-Primary,21,1370,1391,43,1737,1780,64,3107,3171
+Pakistan,Primary,281,3848,4129,1012,6027,7039,1293,9875,11168
+Pakistan,Middle,3176,16964,20140,1325,9781,11106,4501,26745,31246
+Pakistan,High,3570,8500,12070,1029,2364,3393,4599,10864,15463
+Pakistan,Higher Secondary,2283,2970,5253,367,609,976,2650,3579,6229
+Pakistan,Inter Colleges,,,,,,,,,
+Pakistan,Degree Colleges,,,,,,,,,
+Grand Total,Grand Total,9331,33652,42983,3776,20518,24294,13107,54170,67277

@@ -1,0 +1,57 @@
+Institution Type,Sector,2019-20,2020-21,2021-22,2022-23,2023-24
+Pre- Primary,Public,NaN,NaN,NaN,NaN,NaN
+Pre- Primary,Other Public,NaN,NaN,NaN,3110,3171
+Pre- Primary,Private,2185,2230,2230,163,NaN
+Pre- Primary,Total,2185,2230,2230,3273,3171
+Primary,Public,327662,313584,309504,326958,325657
+Primary,Other Public,6795,4571,4197,10190,11168
+Primary,Private,113915,118802,118249,131865,64718
+Primary,Total,448372,436957,431950,469013,401543
+Middle,Public,137949,120955,119886,127157,129293
+Middle,Other Public,2444,1496,1604,8688,31246
+Middle,Private,302263,311528,312782,375360,273952
+Middle,Total,442656,433979,434272,511205,434491
+High,Public,241170,250340,243796,253675,257705
+High,Other Public,10386,8128,7790,10672,15463
+High,Private,315147,333839,335469,469020,554345
+High,Total,566703,592307,587055,733367,827513
+Higher Secondary/Inter Colleges,Public,67978,64796,73380,79606,96282
+Higher Secondary/Inter Colleges,Other Public,3670,12680,14237,9024,6229
+Higher Secondary/Inter Colleges,Private,66012,80910,82623,108064,196923
+Higher Secondary/Inter Colleges,Total,137660,158386,170240,196694,299434
+Degree Colleges,Public,33196,35113,33367,35440,24386
+Degree Colleges,Other Public,522,522,522,522,NaN
+Degree Colleges,Private,26346,23820,23820,24168,33925
+Degree Colleges,Total,60064,59455,57709,60130,58311
+Universities,Public,41938,46225,46225,75222,77531
+Universities,Other Public,NaN,NaN,NaN,NaN,NaN
+Universities,Private,22879,23379,23379,22808,24592
+Universities,Total,64817,69604,69604,98030,102123
+Non-Formal Basic Education,Public,34658,37326,22650,31307,32727
+Non-Formal Basic Education,Other Public,NaN,NaN,NaN,NaN,NaN
+Non-Formal Basic Education,Private,NaN,NaN,6335,2426,2294
+Non-Formal Basic Education,Total,34658,37326,28985,33733,35021
+Education Foundations*,Public,NaN,NaN,NaN,NaN,NaN
+Education Foundations*,Other Public,NaN,NaN,NaN,NaN,NaN
+Education Foundations*,Private,116315,110441,128933,128933,125760
+Education Foundations*,Total,116315,110441,128933,128933,125760
+Technical & Vocational Institutions,Public,9164,9164,9164,20579,20687
+Technical & Vocational Institutions,Other Public,NaN,NaN,NaN,NaN,NaN
+Technical & Vocational Institutions,Private,9043,9043,9043,20310,20417
+Technical & Vocational Institutions,Total,18207,18207,18207,40889,41104
+Teachers Training Institutions,Public,3493,3493,3493,3493,NaN
+Teachers Training Institutions,Other Public,NaN,NaN,NaN,NaN,NaN
+Teachers Training Institutions,Private,298,298,298,298,NaN
+Teachers Training Institutions,Total,3791,3791,3791,3791,NaN
+Deeni Madaris,Public,NaN,NaN,NaN,NaN,NaN
+Deeni Madaris,Other Public,NaN,NaN,NaN,NaN,NaN
+Deeni Madaris,Private,181263,186941,206515,297394,321326
+Deeni Madaris,Total,181263,186941,206515,297394,321326
+Distance Learning Institutions (AIOU),Public,NaN,NaN,NaN,NaN,7831
+Distance Learning Institutions (AIOU),Other Public,NaN,NaN,NaN,NaN,NaN
+Distance Learning Institutions (AIOU),Private,NaN,NaN,NaN,NaN,NaN
+Distance Learning Institutions (AIOU),Total,NaN,NaN,NaN,NaN,7831
+Total,Public,897208,880996,861465,953437,972099
+Total,Other Public,23817,27397,28350,42206,67277
+Total,Private,1155666,1201231,1249676,1580809,1618252
+Grand Total,Grand Total,2076691,2109624,2139491,2576452,2657628
