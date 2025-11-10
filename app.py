@@ -311,6 +311,38 @@ if st.session_state.show_landing:
     
     st.markdown("<br>", unsafe_allow_html=True)
     
+    # Data Sources Section
+    st.markdown('<h3 style="text-align: center; color: #0f4c3a; font-size: 1.8rem; margin: 2rem 0; font-weight: 700;">Data Sources & Partners</h3>', unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    
+    with col2:
+        subcol1, subcol2 = st.columns(2)
+        
+        with subcol1:
+            st.markdown("""
+                <div style="text-align: center; padding: 1.5rem; background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <img src="https://pbs.twimg.com/profile_images/3369614509/cd253064339c502f469ff6ba49f0fc7e_400x400.png" 
+                         style="height: 80px; width: auto; object-fit: contain; margin-bottom: 1rem;" 
+                         alt="Pakistan Bureau of Statistics">
+                    <div style="font-weight: 700; color: #0f4c3a; font-size: 0.95rem; margin-bottom: 0.3rem;">Pakistan Bureau of Statistics</div>
+                    <div style="font-size: 0.75rem; color: #666; font-style: italic;">"Faith, Unity, Discipline"</div>
+                </div>
+            """, unsafe_allow_html=True)
+        
+        with subcol2:
+            st.markdown("""
+                <div style="text-align: center; padding: 1.5rem; background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT72BIjHaaWlfAIHYO9dkB-fwTETsSCYkEhfQ&s" 
+                         style="height: 80px; width: auto; object-fit: contain; margin-bottom: 1rem;" 
+                         alt="Ministry of Planning">
+                    <div style="font-weight: 700; color: #0f4c3a; font-size: 0.95rem; margin-bottom: 0.3rem;">Ministry of Planning, Development & Special Initiatives</div>
+                    <div style="font-size: 0.75rem; color: #666; font-style: italic;">"Building Pakistan's Future"</div>
+                </div>
+            """, unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
     # Interactive Pakistan Data Visualization
     st.markdown("### 📊 Pakistan at a Glance")
     
